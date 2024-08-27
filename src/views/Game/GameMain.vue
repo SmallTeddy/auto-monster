@@ -2,6 +2,8 @@
 import StatsPanel from "./Panel/StatsPanel.vue";
 import EquipmentPanel from "./Panel/EquipmentPanel.vue";
 import BattleLogPanel from "./Panel/BattleLogPanel.vue";
+import BattleInfoPanel from "./Panel/BattleInfoPanel.vue";
+
 const { t } = useI18n();
 </script>
 
@@ -16,8 +18,8 @@ const { t } = useI18n();
         <BattleLogPanel />
       </div>
     </div>
-    <div hw-full flex-center border-dashed-base>
-      {{ t("battleArea") }}
+    <div hw-full flex border-dashed-base>
+      <BattleInfoPanel />
     </div>
   </div>
 </template>
