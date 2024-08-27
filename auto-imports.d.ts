@@ -62,6 +62,7 @@ declare global {
   const useFullscreen: typeof import('@vueuse/core')['useFullscreen']
   const useGlobalState: typeof import('@/store')['useGlobalState']
   const useI18n: typeof import('vue-i18n')['useI18n']
+  const useInterval: typeof import('@vueuse/core')['useInterval']
   const useLink: typeof import('vue-router')['useLink']
   const useRoute: typeof import('vue-router')['useRoute']
   const useRouter: typeof import('vue-router')['useRouter']

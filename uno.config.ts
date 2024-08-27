@@ -18,8 +18,8 @@ export default defineConfig({
     //  自定义配置
     shortcuts: {
         "border-base": "border-gray-500",
-        "border-dashed-base": "border-width-1 border-dashed border-base border-rd-2",
-        "game-bg": "bg-black:70",
+        "border-dashed-base": "border-width-1 border-dashed border-base",
+        "game-bg": "bg-black",
         "bg-mask": "bg-black-30",
         "bg-active": "bg-gray:10",
         "hw-full": "h-full w-full of-hidden",

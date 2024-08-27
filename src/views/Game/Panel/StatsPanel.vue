@@ -1,5 +1,5 @@
 <template>
-  <div hw-full flex-center border="1px dashed base" border-rd-2>属性面板</div>
+  <div hw-full flex-center border-dashed-base>属性面板</div>
 </template>
 
 <script lang="ts" setup></script>

@@ -29,7 +29,8 @@ export default defineConfig({
                     '@vueuse/core': [
                         'createGlobalState',
                         'useStorage',
-                        'useFullscreen'
+                        'useFullscreen',
+                        'useInterval'
                     ]
                 },
                 // @/store auto import
