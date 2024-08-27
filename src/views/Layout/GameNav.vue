@@ -2,7 +2,6 @@
 import ChangeGameStatus from '@/views/NavButton/ChangeGameStatus.vue'
 import ChangeLanguage from '../NavButton/ChangeLanguage.vue'
 import GitHubButton from '@/views/NavButton/GitHubButton.vue'
-import ColorSchemeToggle from '@/views/NavButton/ColorSchemeToggle.vue'
 import FullScreenToggle from '@/views/NavButton/FullScreenToggle.vue'
 
 const { t } = useI18n()
