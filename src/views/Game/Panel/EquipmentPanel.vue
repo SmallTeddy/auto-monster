@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import EquipmentItem from "../Item/EquipmentItem.vue";
+import EquipmentItem from "@/views/Game/Item/EquipmentItem.vue";
 </script>
 
 <template>
