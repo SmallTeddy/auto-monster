@@ -1,0 +1,11 @@
+{
+  "name": "auto-monster",
+  "uuid": "12f80604-b97b-471c-9625-a433ddae6d0d",
+  "debug": {
+    "entry": "http://localhost:5173",
+    "resource": "public"
+  },
+  "build": {
+    "resource": "dist"
+  }
+}
