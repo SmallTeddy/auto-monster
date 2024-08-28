@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { EquipmentEnum } from "@/views/Enum/equipment.enum";
+import { EquipmentEnum } from "@/views/Enum";
 </script>
 
 <template>
