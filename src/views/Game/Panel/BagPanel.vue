@@ -214,7 +214,7 @@ const tabsItems = [
     ],
   },
   {
-    name: "药品",
+    name: "道具",
     data: [{ name: "111" }, { name: "222" }, { name: "333" }],
   },
   {
