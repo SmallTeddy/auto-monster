@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import LogType from "@/views/Type";
+import { LogColor } from '@/views/Enum/log.enum'
 
 const props = withDefaults(
   defineProps<{
@@ -11,10 +12,12 @@ const props = withDefaults(
     logInfo: ''
   }
 );
+
+const logColor = LogColor[props.logLabel];
 </script>
 
 <template>
-  <div flex>
+  <div flex :style="`color: ${logColor}`">
     <div>{{ logLabel }}</div>
     <span>：</span>
     <div>{{ logInfo }}</div>
