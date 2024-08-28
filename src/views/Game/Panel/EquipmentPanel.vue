@@ -15,4 +15,4 @@ import EquipmentItem from "@/views/Game/Item/EquipmentItem.vue";
   </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="less"></style>

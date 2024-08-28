@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ChangeGameStatus from '@/views/NavButton/ChangeGameStatus.vue'
-import ChangeLanguage from '../NavButton/ChangeLanguage.vue'
+import ChangeLanguage from '@/views//NavButton/ChangeLanguage.vue'
 import GitHubButton from '@/views/NavButton/GitHubButton.vue'
 import FullScreenToggle from '@/views/NavButton/FullScreenToggle.vue'
 
