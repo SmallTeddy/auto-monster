@@ -1,25 +1,33 @@
 <script lang="ts" setup>
 import { EquipmentEnum } from "@/views/Enum";
-import { getAssetsFile } from '@/utils';
+import { getAssetsFile } from "@/utils";
+import { EquipmentType } from "@/views/Type";
 
-const equipment = {
-  name: "冰剑",
-  img: "property/weapon/urand_jihad.png",
-  攻击: 50,
-  吸血: 0,
-  暴击: 10,
-  暴伤: 20,
-};
+const equipmentItems = ["攻击", "防御", "生命", "攻速", "吸血", "暴击", "暴伤"];
+
+withDefaults(
+  defineProps<{
+    equipment: EquipmentType;
+  }>(),
+  {
+    equipment: null,
+  }
+);
 </script>
 
 <template>
-  <div flex flex-items-center gap-4 flex-1>
-    <div equipment-box border-dashed-base bg-cover backface-hidden :style="{ backgroundImage: `url(${getAssetsFile(equipment.img)})` }"></div>
-    <div>{{ equipment.name }}</div>
-    <div>{{ EquipmentEnum["攻击"] }}：{{ equipment["攻击"] }}</div>
-    <div>{{ EquipmentEnum["吸血"] }}：{{ equipment["吸血"] }}</div>
-    <div>{{ EquipmentEnum["暴击"] }}：{{ equipment["暴击"] }}</div>
-    <div>{{ EquipmentEnum["暴伤"] }}：{{ equipment["暴伤"] }}</div>
+  <div flex flex-items-center flex-1>
+    <div
+      equipment-box
+      border-dashed-base
+      bg-cover
+      backface-hidden
+      :style="{ backgroundImage: `url(${getAssetsFile(equipment.img)})` }"
+    ></div>
+    <div w-120px pl-4>{{ equipment.name }}</div>
+    <div v-for="item in equipmentItems" :key="item">
+      <div w-100px pl-4 v-show="equipment[item]">{{ EquipmentEnum[item] }}：{{ equipment[item] }}</div>
+    </div>
   </div>
 </template>
 

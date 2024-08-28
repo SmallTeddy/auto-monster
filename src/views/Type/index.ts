@@ -32,10 +32,23 @@ type GameInfoType = {
     gameLogItems: LogType[];
 }
 
+type EquipmentType = {
+    name: string | null;
+    img: string | null;
+    攻击?: number;
+    防御?: number;
+    生命?: number;
+    攻速?: number;
+    吸血?: number;
+    暴击?: number;
+    暴伤?: number;
+  };
+
 export type {
     DifficultyType,
     LanguageType,
     GameStateType,
     LogType,
-    GameInfoType
+    GameInfoType,
+    EquipmentType
 }
