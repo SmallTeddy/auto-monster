@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import StatsPanel from "./Panel/StatsPanel.vue";
 import EquipmentPanel from "./Panel/EquipmentPanel.vue";
-import BattleLogPanel from "./Panel/BattleLogPanel.vue";
-import BattleInfoPanel from "./Panel/BattleInfoPanel.vue";
+import BagPanel from "./Panel/BagPanel.vue";
+import FightLogPanel from "./Panel/FightLogPanel.vue";
 
 const { t } = useI18n();
 </script>
@@ -15,11 +15,11 @@ const { t } = useI18n();
         <EquipmentPanel />
       </div>
       <div w-full flex-1>
-        <BattleLogPanel />
+        <BagPanel />
       </div>
     </div>
     <div hw-full flex border-dashed-base>
-      <BattleInfoPanel />
+      <FightLogPanel />
     </div>
   </div>
 </template>
