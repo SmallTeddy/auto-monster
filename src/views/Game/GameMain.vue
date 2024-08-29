@@ -9,7 +9,7 @@ const { t } = useI18n();
 
 <template>
   <div h-full w-screen color-white p2 flex gap-2>
-    <div hw-full flex flex-col border-dashed-base gap-2 p2>
+    <div hw-full flex flex-col border-solid-base gap-2 p2>
       <div w-full flex gap-2 flex-1>
         <StatsPanel />
         <EquipmentPanel />
@@ -18,7 +18,7 @@ const { t } = useI18n();
         <BagPanel />
       </div>
     </div>
-    <div hw-full flex border-dashed-base>
+    <div hw-full flex border-solid-base>
       <FightLogPanel />
     </div>
   </div>

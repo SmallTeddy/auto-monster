@@ -231,7 +231,7 @@ const dataItems = computed(() => {
 </script>
 
 <template>
-  <div hw-full border-dashed-base>
+  <div hw-full border-solid-base>
     <div flex>
       <label
         v-for="item in tabsItems"
@@ -246,7 +246,7 @@ const dataItems = computed(() => {
     </div>
     <div>
       <div h-350px w-full flex gap-2 p2 flex-wrap of-auto>
-        <div v-for="item in dataItems" equipment-box border-dashed-base></div>
+        <div v-for="item in dataItems" equipment-box border-solid-base></div>
       </div>
     </div>
   </div>

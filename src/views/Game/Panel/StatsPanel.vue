@@ -1,7 +1,7 @@
 <script lang="ts" setup></script>
 
 <template>
-  <div h-full flex flex-col border-dashed-base p4 w-400px>
+  <div h-full flex flex-col border-solid-base p4 w-400px>
     <div flex flex-items-center flex-1>金币：2000000</div>
     <div flex flex-items-center flex-1>生命：500</div>
     <div flex flex-items-center flex-1>攻击：100</div>

@@ -19,7 +19,7 @@ withDefaults(
   <div flex flex-items-center flex-1>
     <div
       equipment-box
-      border-dashed-base
+      border-solid-base
       bg-cover
       backface-hidden
       :style="{ backgroundImage: `url(${getAssetsFile(equipment.img)})` }"

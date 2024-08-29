@@ -3,7 +3,7 @@ import LogInfoItem from '@/views/Game/Item/LogInfoItem.vue'
 </script>
 
 <template>
-  <div hw-full flex flex-col border-dashed-base gap-2 p2>
+  <div hw-full flex flex-col gap-2 p2>
     <LogInfoItem logLabel="系统" logInfo="欢迎来到怪兽自打" />
     <LogInfoItem logLabel="装备" logInfo="获得一把小刀" />
     <LogInfoItem logLabel="圣器" logInfo="获得一把屠龙宝刀" />

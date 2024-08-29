@@ -86,7 +86,7 @@ const weapon: EquipmentType = {
 </script>
 
 <template>
-  <div hw-full border-dashed-base flex flex-col gap-2 p2>
+  <div hw-full border-solid-base flex flex-col gap-2 p2>
     <EquipmentItem :equipment="weapon" />
     <EquipmentItem :equipment="shields" />
     <EquipmentItem :equipment="hat" />
