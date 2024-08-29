@@ -32,16 +32,26 @@ type GameInfoType = {
     gameLogItems: LogType[];
 }
 
+/**
+ * 装备类型
+ */
 type EquipmentType = {
-    name: string | null;
-    img: string | null;
-    攻击?: number;
-    防御?: number;
-    生命?: number;
-    攻速?: number;
-    吸血?: number;
-    暴击?: number;
-    暴伤?: number;
+    name: string | null; // 名字
+    img: string | null; // 图片
+    level: number; // 等级
+    quality: 'Common' | 'Uncommon' | 'Rare' | 'Epic' | 'Legendary' | 'Artifact' // 品质
+    chance: number; // 几率 
+    ATK?: number; // 攻击
+    DEF?: number; // 防御
+    INT?: number; // 智力
+    HP?: number; // 生命
+    RES?: number; // 复活
+    SPD?: number; // 速度
+    HIT?: number; // 命中
+    LS?: number; // 吸血
+    CRIT?: number; // 暴击
+    CD?: number; // 暴伤
+    EXP?: number; // 经验加成
   };
 
 export type {

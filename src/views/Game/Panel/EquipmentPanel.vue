@@ -8,10 +8,12 @@ import { EquipmentType } from "@/views/Type";
 const weapon: EquipmentType = {
   name: "冰剑",
   img: "property/weapon/urand_jihad.png",
-  攻击: 50,
-  吸血: 0,
-  暴击: 10,
-  暴伤: 20,
+  level: 50,
+  quality: 'Legendary',
+  chance: 0.02,
+  ATK: 50,
+  CRIT: 10,
+  CD: 20,
 };
 
 /**
@@ -20,8 +22,11 @@ const weapon: EquipmentType = {
  const shields: EquipmentType = {
   name: "新手盾牌",
   img: "property/armor/shields/buckler_1.png",
-  防御: 200,
-  生命: 100
+  level: 1,
+  quality: 'Common',
+  chance: 0.95,
+  DEF: 200,
+  HP: 100
 };
 
 /**
@@ -30,8 +35,11 @@ const weapon: EquipmentType = {
  const hat: EquipmentType = {
   name: "魔术帽",
   img: "property/armor/headgear/hat_2.png",
-  防御: 10,
-  生命: 20,
+  level: 5,
+  quality: 'Uncommon',
+  chance: 0.8,
+  INT: 20,
+  SPD: 10,
 };
 
 /**
@@ -40,8 +48,11 @@ const weapon: EquipmentType = {
  const torso: EquipmentType = {
   name: "黑曜石战甲",
   img: "property/armor/torso/shadow_dragon_scale_mail.png",
-  防御: 50,
-  生命: 200,
+  level: 15,
+  quality: 'Epic',
+  chance: 0.1,
+  DEF: 50,
+  HP: 200,
 };
 
 /**
@@ -50,8 +61,11 @@ const weapon: EquipmentType = {
  const hands: EquipmentType = {
   name: "帝国手套",
   img: "property/armor/hands/glove_3_new.png",
-  攻速: 10,
-  暴击: 5,
+  level: 15,
+  quality: 'Rare',
+  chance: 0.3,
+  SPD: 10,
+  CRIT: 5,
 };
 
 /**
@@ -60,8 +74,11 @@ const weapon: EquipmentType = {
  const cloak: EquipmentType = {
   name: "吸血斗篷",
   img: "property/armor/back/cloak_4.png",
-  吸血: 10,
-  暴击: 20,
+  level: 15,
+  quality: 'Rare',
+  chance: 0.3,
+  LS: 10,
+  CRIT: 20,
 };
 
 /**
@@ -70,8 +87,11 @@ const weapon: EquipmentType = {
  const ring: EquipmentType = {
   name: "蓝宝石戒指",
   img: "property/ring/urand_mage.png",
-  暴击: 20,
-  暴伤: 10,
+  level: 20,
+  quality: 'Artifact',
+  chance: 0.01,
+  CRIT: 50,
+  CD: 50,
 };
 
 /**
@@ -80,8 +100,11 @@ const weapon: EquipmentType = {
  const shoes: EquipmentType = {
   name: "帝国战靴",
   img: "property/armor/feet/boots_iron_2.png",
-  防御: 50,
-  生命: 200,
+  level: 15,
+  quality: 'Rare',
+  chance: 0.3,
+  DEF: 50,
+  HP: 200,
 };
 </script>
 

@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { EquipmentEnum } from "@/views/Enum";
+import { EquipmentEnum, EquipmentQualityEnum, EquipmentQualityColorEnum } from "@/views/Enum";
 import { getAssetsFile } from "@/utils";
 import { EquipmentType } from "@/views/Type";
 
-const equipmentItems = ["攻击", "防御", "生命", "攻速", "吸血", "暴击", "暴伤"];
+const equipmentItems = ["ATK", "DEF", "INT", "SPD", "HP", "RES", "SPD", "HIT", "LS", "CRIT", "CD", "EXP"];
 
 withDefaults(
   defineProps<{
@@ -22,9 +22,12 @@ withDefaults(
       border-solid-base
       bg-cover
       backface-hidden
-      :style="{ backgroundImage: `url(${getAssetsFile(equipment.img)})` }"
+      :style="{
+        borderColor: EquipmentQualityColorEnum[equipment.quality],
+        backgroundImage: `url(${getAssetsFile(equipment.img)})`
+      }"
     ></div>
-    <div w-120px pl-4>{{ equipment.name }}</div>
+    <div w-160px pl-4 :style="{ color: EquipmentQualityColorEnum[equipment.quality] }">LV: {{ equipment.level }} {{ equipment.name }}</div>
     <div v-for="item in equipmentItems" :key="item">
       <div w-100px pl-4 v-show="equipment[item]">{{ EquipmentEnum[item] }}：{{ equipment[item] }}</div>
     </div>
