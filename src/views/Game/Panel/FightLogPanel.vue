@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import LogInfoItem from '@/views/Game/Item/LogInfoItem.vue'
+import LogInfoItem from "@/views/Game/Item/LogInfoItem.vue";
 </script>
 
 <template>

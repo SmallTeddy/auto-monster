@@ -1,21 +1,20 @@
-<script lang='ts' setup>
+<script lang="ts" setup>
 const { locale } = useI18n();
-const state = useGlobalState()
+const state = useGlobalState();
 
 const toggleLanguage = () => {
-  const language = state.value.language
+  const language = state.value.language;
   switch (language) {
-    case 'cn':
-      state.value.language = 'en'
-      locale.value = 'en'
-      break
-    case 'en':
-      state.value.language = 'cn'
-      locale.value = 'cn'
-      break
+    case "cn":
+      state.value.language = "en";
+      locale.value = "en";
+      break;
+    case "en":
+      state.value.language = "cn";
+      locale.value = "cn";
+      break;
   }
-}
-
+};
 </script>
 
 <template>
@@ -24,5 +23,4 @@ const toggleLanguage = () => {
   </button>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

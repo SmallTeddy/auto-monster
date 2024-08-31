@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import LogType from "@/views/Type";
-import { LogColor } from '@/views/Enum'
+import { LogType } from "@/views/Type";
+import { LogColor } from "@/views/Enum";
 
 const props = withDefaults(
   defineProps<{
     logLabel: LogType;
-    logInfo: String;
+    logInfo: string;
   }>(),
   {
     logLabel: "系统",
-    logInfo: ''
+    logInfo: "",
   }
 );
 

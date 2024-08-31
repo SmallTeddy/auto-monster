@@ -52,7 +52,7 @@ type EquipmentType = {
     CRIT?: number; // 暴击
     CD?: number; // 暴伤
     EXP?: number; // 经验加成
-  };
+};
 
 export type {
     DifficultyType,

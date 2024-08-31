@@ -1,13 +1,17 @@
 /**
  * 获取assets静态资源，路径为assets
  * @param url 图片名称
- * @returns
+ * @returns 图片地址
  */
 export const getAssetsFile = (url: string): string => {
     return new URL(`../assets/${url}`, import.meta.url).href
 }
 
-// 根据最大数字生成随机数 取下标 0 - max-1
+/**
+ * 根据最大数字生成随机数 取下标 0 - max-1
+ * @param max 最大值
+ * @returns 随机数
+ */
 export const getRandomNumber = (max: number): number => {
     return (Math.floor(Math.random() * max) + 1) % max
 }
@@ -46,6 +50,8 @@ export const deepClone = (obj, map = new WeakMap()) => {
 
 /**
  * 防抖函数
+ * @param fn
+ * @param delay 延迟时间
  */
 let debounceTimer;
 export const debounce = (fn: Function, delay: number = 500) => {
