@@ -35,6 +35,7 @@ withDefaults(
 <template>
   <div flex flex-items-center flex-1>
     <div
+      flex-none
       equipment-box
       border-solid-base
       bg-cover
