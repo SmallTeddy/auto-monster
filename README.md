@@ -1,6 +1,20 @@
 # Auto Monster
 
-> 该项目是用 niva 构建桌面端的自动化工具，用于自动完成一些重复性任务。
+> ⚠️ 该项目正在开发中，敬请期待正式版本！
+
+## 游戏介绍
+
+怪兽自打（Auto Monster）是一款自动化的小游戏，使用 [Dungeon Crawl Stone Soup](http://crawl.develz.org/wordpress/ ) 游戏图块，可在 [opengameart.org](https://opengameart.org/content/dungeon-crawl-32x32-tiles) 游戏素材网站上进行下载。
+
+## 技术栈一览
+
+- Vue3：前端框架
+- TypeScript：前端开发语言
+- Vite：前端构建工具
+- Niva：桌面端构建工具
+- UnoCss： 前端样式工具
+- Vue-i18n：前端国际化
+- VueUse：前端工具库
 
 ## Todo List
 
