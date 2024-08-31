@@ -11,7 +11,7 @@ export type LanguageType = 'cn' | 'en'
 /**
  * 游戏状态
  */
-export type GameStateType = '初始化' | '开始' | '暂停'
+export type GameStateType = '初始化' | '开始' | '暂停' | '结束'
 
 /**
  * 游戏日志信息
@@ -33,14 +33,19 @@ export type GameInfoType = {
 }
 
 /**
+ * 装备品质
+ */
+export type EquipmentQualityType = 'Common' | 'Uncommon' | 'Rare' | 'Epic' | 'Legendary' | 'Artifact'
+
+/**
  * 装备类型
  */
 export type EquipmentType = {
     name: string | null; // 名字
     img: string | null; // 图片
     level: number; // 等级
-    quality: 'Common' | 'Uncommon' | 'Rare' | 'Epic' | 'Legendary' | 'Artifact' // 品质
-    chance: number; // 几率 
+    quality: EquipmentQualityType // 品质
+    chance: number; // 爆出概率 
     ATK?: number; // 攻击
     DEF?: number; // 防御
     INT?: number; // 智力

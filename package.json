@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node bin/art-code-font.js && vite",
-    "commit": "cz",
+    "commit": "git add . && cz",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "predeploy": "pnpm run build",
