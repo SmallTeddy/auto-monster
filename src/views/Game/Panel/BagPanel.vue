@@ -240,6 +240,7 @@ const dataItems = computed(() => {
         flex-center
         cursor-pointer
         @click="activeTab = item.name"
+        :class="{red: activeTab === item.name}"
       >
         {{ item.name }}
       </label>
@@ -252,4 +253,8 @@ const dataItems = computed(() => {
   </div>
 </template>
 
-<style scoped lang="less"></style>
+<style scoped>
+.red{
+  color: red;
+}
+</style>
