@@ -1,13 +1,9 @@
 import { createApp } from 'vue'
-import App from './App.vue'
-import i18n from './i18n'
 import '@unocss/reset/tailwind.css'
 import 'virtual:uno.css'
-import './styles/base.css'
-import router from './router'
+import '@/styles/main.css'
+import App from './App.vue'
+import { router } from '@/router'
+import { i18n } from '@/locales'
 
-const app = createApp(App)
-app.use(i18n)
-app.use(router)
-
-app.mount('#app')
+createApp(App).use(router).use(i18n).mount('#app')

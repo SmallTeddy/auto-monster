@@ -25,6 +25,10 @@ export default defineConfig({
         "hw-full": "h-full w-full of-hidden",
         "flex-center": "flex items-center justify-center",
         "equipment-box": "w-40px h-40px",
+        "game-btn": "rounded-lg bg-primary px-3 py-1.5 text-13px font-semibold text-black transition enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40",
+        "game-btn-ghost": "rounded-lg bg-white/10 px-3 py-1.5 text-13px font-semibold text-white transition enabled:hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40",
+        "game-btn-purple": "rounded-lg bg-purple-500 px-3 py-1.5 text-13px font-semibold text-white transition enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40",
+        "game-chip": "flex items-center gap-1 rounded-lg bg-white/5 px-2 py-1 text-12px",
     },
     //  额外选项
     rules: [
