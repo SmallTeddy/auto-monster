@@ -1,0 +1,108 @@
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'DM Sans', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  background: #0b0f14;
+  color: #e5e7eb;
+  overflow: hidden;
+  user-select: none;
+}
+
+img.pixel {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* 伤害飘字 */
+@keyframes float-up {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.6);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -6px) scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -42px) scale(1);
+  }
+}
+
+.float-text {
+  animation: float-up 0.8s ease-out forwards;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 90%);
+}
+
+/* 受击闪烁 */
+@keyframes hit-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); filter: brightness(2.2) sepia(1) saturate(8) hue-rotate(-50deg); }
+  75% { transform: translateX(4px); }
+}
+
+.is-hit {
+  animation: hit-shake 0.25s ease-in-out;
+}
+
+/* 攻击前冲 */
+@keyframes lunge-right {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(10px); }
+}
+@keyframes lunge-left {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-10px); }
+}
+.lunge-right { animation: lunge-right 0.4s ease-in-out; }
+.lunge-left { animation: lunge-left 0.4s ease-in-out; }
+
+/* 阵亡淡出 */
+@keyframes unit-die {
+  to {
+    opacity: 0.15;
+    filter: grayscale(1);
+    transform: scale(0.9);
+  }
+}
+.is-dead {
+  animation: unit-die 0.5s ease-out forwards;
+}
+
+/* 面板淡入 */
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.panel-in { animation: panel-in 0.18s ease-out; }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.toast-in { animation: toast-in 0.2s ease-out; }
+
+/* 日志滚动条 */
+.log-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.log-scroll::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 15%);
+  border-radius: 3px;
+}
+.panel-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.panel-scroll::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 18%);
+  border-radius: 4px;
+}
+.panel-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
