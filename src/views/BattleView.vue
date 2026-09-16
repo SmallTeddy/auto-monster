@@ -33,6 +33,19 @@
         </span>
         <span v-else-if="run.status === 'fighting'" class="text-amber-300">{{ t('battle.paused') }}</span>
 
+        <!-- 主动技能 -->
+        <button
+          class="skill-btn"
+          :class="{ 'skill-ready': skillReady, 'skill-cooldown': skillCd > 0 }"
+          :disabled="!skillReady"
+          :title="`${activeSkill.name}：${activeSkill.desc}`"
+          @click="store.castSkill()"
+        >
+          <span :class="activeSkill.icon" class="text-16px" />
+          <span class="hidden text-11px font-semibold sm:inline">{{ activeSkill.name }}</span>
+          <span v-if="skillCd > 0" class="text-11px font-bold text-red-300">{{ skillCd }}</span>
+        </button>
+
         <!-- 倍速 -->
         <button class="icon-mini" @click="cycleSpeed">
           <span class="i-mdi-play-speed" />{{ speed }}x
@@ -194,6 +207,7 @@ import { useRouter } from 'vue-router'
 import { useIntervalFn } from '@vueuse/core'
 import { useGlobalState } from '@/store'
 import { getBoon } from '@/game/data/boons'
+import { getHero } from '@/game/data/heroes'
 import TopBar from '@/components/TopBar.vue'
 import UnitCard from '@/components/UnitCard.vue'
 import BagPanel from '@/components/BagPanel.vue'
@@ -250,6 +264,14 @@ const potionCount = computed(() => {
 })
 const claimable = computed(() => store.claimableCount() > 0)
 
+// 主动技能
+const activeSkill = computed(() => getHero(pf.value!.heroId).active)
+const skillCd = computed(() => {
+  const hero = run.units.find(u => u.side === 'hero')
+  return hero?.skillCd ?? 0
+})
+const skillReady = computed(() => run.status === 'fighting' && skillCd.value <= 0)
+
 const navs = [
   { key: 'bag', icon: 'i-mdi-bag-personal-outline', label: 'nav.bag' },
   { key: 'shop', icon: 'i-mdi-store-outline', label: 'nav.shop' },
@@ -279,5 +301,34 @@ function openPanel(key: string) {
 .icon-mini:hover {
   background: rgb(255 255 255 / 10%);
   color: white;
+}
+
+/* 主动技能按钮 */
+.skill-btn {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  border-radius: 6px;
+  padding: 2px 7px;
+  border: 1px solid transparent;
+  transition: all 0.18s ease;
+}
+.skill-btn.skill-ready {
+  border-color: #fbbf24;
+  background: rgb(251 191 36 / 15%);
+  color: #fde68a;
+  box-shadow: 0 0 6px rgb(251 191 36 / 35%);
+}
+.skill-btn.skill-ready:hover {
+  background: rgb(251 191 36 / 28%);
+  transform: scale(1.04);
+}
+.skill-btn.skill-cooldown {
+  background: rgb(255 255 255 / 6%);
+  color: rgb(255 255 255 / 40%);
+  cursor: not-allowed;
+}
+.skill-btn:disabled {
+  opacity: 0.55;
 }
 </style>

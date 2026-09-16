@@ -26,6 +26,28 @@ export interface HeroDef {
     regen?: number
     doubleHit?: number
   }
+  /** 主动技能（战斗中手动释放，带冷却） */
+  active: ActiveSkill
+}
+
+/** 主动技能定义 */
+export interface ActiveSkill {
+  id: string
+  name: string
+  desc: string
+  icon: string
+  /** 冷却回合数 */
+  cd: number
+  /**
+   * 效果类型
+   * - heal：治疗自身（按 maxHp * power 比例）
+   * - burst：对单体爆发伤害（按 atk * power）
+   * - aoe：对所有敌人造成伤害（按 atk * power）
+   * - lifesteal：对单体造成伤害并吸血（按 atk * power 伤害，按伤害 * power 回血）
+   */
+  type: 'heal' | 'burst' | 'aoe' | 'lifesteal'
+  /** 效果强度系数 */
+  power: number
 }
 
 export interface EquipDef {
@@ -141,6 +163,8 @@ export interface BattleUnit {
   regen: number
   boss: boolean
   alive: boolean
+  /** 主动技能当前剩余冷却回合（仅 hero 使用，0 表示可释放） */
+  skillCd?: number
 }
 
 export interface LogLine {

@@ -16,6 +16,15 @@
       </div>
     </template>
 
+    <!-- 当前金币 -->
+    <div class="mb-3 flex items-center justify-between rounded-xl border border-yellow-400/20 bg-yellow-500/10 px-3 py-2">
+      <div class="flex items-center gap-2">
+        <span class="i-mdi-gold text-20px text-yellow-300" />
+        <span class="text-13px text-white/60">{{ t('shop.currentGold') }}</span>
+      </div>
+      <span class="text-18px font-black text-yellow-300">{{ pf.gold.toLocaleString() }}</span>
+    </div>
+
     <!-- 购买 -->
     <div v-if="tab === 'buy'" class="grid grid-cols-2 gap-3 md:grid-cols-3">
       <div

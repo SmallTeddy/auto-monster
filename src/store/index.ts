@@ -7,12 +7,13 @@ import { i18n } from '@/locales'
 import { spriteByName } from '@/game/assets'
 import { DUNGEONS } from '@/game/data/dungeons'
 import { QUESTS } from '@/game/data/quests'
+import { getHero } from '@/game/data/heroes'
 import { getConsumableDef, getMaterialDef } from '@/game/data/catalog'
 import { RARITY_META, RARITY_ORDER, UPGRADE_GOLD_COST, UPGRADE_SOUL_COST, boonsToBonus, enhanceCost, expNeed, petExpNeed, recycleGain, sellPrice } from '@/game/engine/stats'
 import {
   BAG_CAP, genPet, genShopStock, rollDrop, shopSlotPrice, stackIntoBag, todayStr,
 } from '@/game/engine/loot'
-import { createHeroUnits, stepRound } from '@/game/engine/battle'
+import { castHeroSkill, createHeroUnits, stepRound } from '@/game/engine/battle'
 import { genBoonOffer, genDungeonWave, genTowerWave } from '@/game/engine/run'
 import { chance, uid } from '@/game/engine/rng'
 
@@ -821,6 +822,34 @@ export const useGlobalState = createGlobalState(() => {
     }
   }
 
+  /** 释放英雄主动技能 */
+  function castSkill(): boolean {
+    if (run.status !== 'fighting')
+      return false
+    const pf = p()
+    const ok = castHeroSkill(run.units, pf.heroId, { logs: run.logs, floats: run.floats })
+    if (!ok) {
+      toast('技能冷却中或无法释放', 'error')
+      return false
+    }
+    // 技能可能直接清场，立即结算
+    const enemyAlive = run.units.some(u => u.side === 'enemy' && u.alive)
+    if (!enemyAlive)
+      battleTick()
+    return true
+  }
+
+  /** 当前英雄的主动技能定义（供 UI 展示） */
+  function heroActiveSkill() {
+    const pf = p()
+    return getHero(pf.heroId).active
+  }
+  /** 当前英雄单位技能剩余冷却 */
+  function heroSkillCd(): number {
+    const hero = run.units.find(u => u.side === 'hero')
+    return hero?.skillCd ?? 0
+  }
+
   /** 自动补满宠物精灵 url（旧存档容错） */
   function fixPetSprites() {
     if (!profile.value)
@@ -843,6 +872,7 @@ export const useGlobalState = createGlobalState(() => {
     deployPet, withdrawPet, trainPet, petSellPrice, sellPet, recyclePet,
     dungeonDef, enterDungeon, sweepDungeon, nextDungeonWave, abandonDungeon, exitToTower,
     startRun, nextTowerFloor, chooseBoon, battleTick,
+    castSkill, heroActiveSkill, heroSkillCd,
     track, STAMINA_MAX,
   }
 })

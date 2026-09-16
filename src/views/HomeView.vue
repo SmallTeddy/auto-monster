@@ -49,8 +49,19 @@
             <Sprite :src="spriteByName(hero.sprite).url" :size="72" />
           </div>
           <div class="mb-1 text-16px font-bold text-white">{{ hero.name }}</div>
-          <div class="mb-3 rounded bg-white/10 px-2 py-0.5 text-11px text-primary">{{ hero.skill.name }}</div>
-          <p class="mb-3 min-h-50px text-11px leading-4 text-white/50">{{ hero.skill.desc }}</p>
+          <div class="mb-2 rounded bg-white/10 px-2 py-0.5 text-11px text-primary">{{ hero.skill.name }}</div>
+          <p class="mb-2 min-h-36px text-11px leading-4 text-white/50">{{ hero.skill.desc }}</p>
+          <!-- 主动技能 -->
+          <div class="mb-3 flex items-center gap-1.5 rounded-lg border border-amber-400/30 bg-amber-500/10 px-2 py-1">
+            <span :class="hero.active.icon" class="shrink-0 text-16px text-amber-300" />
+            <div class="min-w-0">
+              <div class="flex items-center gap-1 text-11px font-bold text-amber-300">
+                {{ hero.active.name }}
+                <span class="rounded bg-amber-400/20 px-1 text-9px text-amber-400/80">CD {{ hero.active.cd }}</span>
+              </div>
+              <div class="text-9px leading-3 text-amber-200/70">{{ hero.active.desc }}</div>
+            </div>
+          </div>
           <div class="grid w-full grid-cols-4 gap-1 text-center">
             <div class="rounded bg-black/30 py-1"><div class="text-10px text-white/40">HP</div><b class="text-12px text-red-300">{{ hero.base.hp }}</b></div>
             <div class="rounded bg-black/30 py-1"><div class="text-10px text-white/40">ATK</div><b class="text-12px text-orange-300">{{ hero.base.atk }}</b></div>

@@ -111,6 +111,7 @@ const zhCN = {
     soldOut: '已售罄',
     bought: '购买成功',
     refreshed: '商品已刷新',
+    currentGold: '当前金币',
   },
   pet: {
     title: '宠物营地',
@@ -258,6 +259,7 @@ const enUS: MessageSchema = {
     soldOut: 'Sold out',
     bought: 'Purchase success',
     refreshed: 'Refreshed',
+    currentGold: 'Current Gold',
   },
   pet: {
     title: 'Pet Camp',

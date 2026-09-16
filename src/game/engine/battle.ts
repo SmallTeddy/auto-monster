@@ -52,6 +52,7 @@ export function createHeroUnits(p: Profile): BattleUnit[] {
       doubleHit: hs.doubleHit,
       regen: hs.regen,
       boss: false,
+      skillCd: 0,
     }),
   ]
   for (const pet of p.pets.filter(x => x.deployed)) {
@@ -145,10 +146,91 @@ export function stepRound(units: BattleUnit[], events: BattleEvents): 'fighting'
     attack(u, foes, events)
   }
 
+  // 回合结束：所有单位技能冷却 -1
+  for (const u of units) {
+    if (u.skillCd && u.skillCd > 0)
+      u.skillCd = Math.max(0, u.skillCd - 1)
+  }
+
   const hero = units.find(u => u.side === 'hero')!
   if (!hero.alive)
     return 'lost'
   if (!units.some(u => u.side === 'enemy' && u.alive))
     return 'won'
   return 'fighting'
+}
+
+/** 释放英雄主动技能，返回是否释放成功 */
+export function castHeroSkill(units: BattleUnit[], heroDefId: string, events: BattleEvents): boolean {
+  const hero = units.find(u => u.side === 'hero')
+  if (!hero || !hero.alive)
+    return false
+  if (hero.skillCd && hero.skillCd > 0)
+    return false
+
+  const foes = units.filter(u => u.side === 'enemy' && u.alive)
+  if (!foes.length)
+    return false
+
+  const heroDef = getHero(heroDefId)
+  const skill = heroDef.active
+  if (!skill)
+    return false
+
+  switch (skill.type) {
+    case 'heal': {
+      const heal = Math.round(hero.maxHp * skill.power)
+      hero.hp = Math.min(hero.maxHp, hero.hp + heal)
+      addFloat(events, hero, `+${heal}`, false)
+      addLog(events.logs, `${hero.name} 释放【${skill.name}】，恢复 ${heal} 生命`, 'heal')
+      break
+    }
+    case 'burst': {
+      const target = pick(foes)
+      const dmg = Math.max(1, Math.round(hero.atk * skill.power - target.def * 0.5))
+      target.hp -= dmg
+      addFloat(events, target, `-${dmg}`, true)
+      addLog(events.logs, `${hero.name} 释放【${skill.name}】，对 ${target.name} 造成 ${dmg} 爆发伤害`, 'crit')
+      if (target.hp <= 0) {
+        target.alive = false
+        target.hp = 0
+        addLog(events.logs, `${target.name} 被击败了！`, 'kill')
+      }
+      break
+    }
+    case 'aoe': {
+      for (const target of foes) {
+        const dmg = Math.max(1, Math.round(hero.atk * skill.power - target.def * 0.5))
+        target.hp -= dmg
+        addFloat(events, target, `-${dmg}`, false)
+        if (target.hp <= 0) {
+          target.alive = false
+          target.hp = 0
+          addLog(events.logs, `${target.name} 被击败了！`, 'kill')
+        }
+      }
+      addLog(events.logs, `${hero.name} 释放【${skill.name}】，对所有敌人造成范围伤害`, 'crit')
+      break
+    }
+    case 'lifesteal': {
+      const target = pick(foes)
+      const dmg = Math.max(1, Math.round(hero.atk * skill.power - target.def * 0.5))
+      target.hp -= dmg
+      addFloat(events, target, `-${dmg}`, true)
+      const heal = Math.round(dmg * skill.power * 0.5)
+      hero.hp = Math.min(hero.maxHp, hero.hp + heal)
+      addFloat(events, hero, `+${heal}`, false)
+      addLog(events.logs, `${hero.name} 释放【${skill.name}】，对 ${target.name} 造成 ${dmg} 伤害并吸取 ${heal} 生命`, 'crit')
+      if (target.hp <= 0) {
+        target.alive = false
+        target.hp = 0
+        addLog(events.logs, `${target.name} 被击败了！`, 'kill')
+      }
+      break
+    }
+  }
+
+  // 进入冷却
+  hero.skillCd = skill.cd
+  return true
 }
