@@ -7,7 +7,7 @@
       <ZoneTag :text="t('battle.enemyArea')" color="red" />
       <div class="pointer-events-none absolute inset-0 opacity-[0.07]" style="background-image: radial-gradient(circle at 20% 30%, #ef4444 0, transparent 40%), radial-gradient(circle at 80% 60%, #ef4444 0, transparent 35%)" />
 
-      <div class="relative z-1 flex items-end justify-center gap-6">
+      <div class="relative z-1 flex items-end justify-center gap-3 sm:gap-6">
         <UnitCard
           v-for="u in enemies"
           :key="u.id"
@@ -18,21 +18,25 @@
     </section>
 
     <!-- ===== 中间状态条 ===== -->
-    <div class="flex h-9 shrink-0 items-center justify-between border-y border-white/10 bg-[#0e141b] px-3 text-12px">
-      <div class="flex items-center gap-2">
-        <span class="game-chip">
+    <div class="flex h-9 shrink-0 items-center justify-between gap-1 border-y border-white/10 bg-[#0e141b] px-2 text-12px">
+      <div class="flex min-w-0 items-center gap-1.5 overflow-hidden">
+        <span class="game-chip shrink-0">
           <span v-if="run.mode === 'dungeon'">{{ store.dungeonDef(run.dungeonDefId).name }} {{ run.dungeonWave + 1 }}/{{ store.dungeonDef(run.dungeonDefId).waves }}</span>
           <span v-else>B{{ run.floor }}{{ isBossFloor ? ' BOSS' : '' }}</span>
         </span>
-        <span class="game-chip"><span class="i-mdi-swap-horizontal-circle-outline" />{{ t('battle.round') }} {{ run.round }}</span>
+        <span class="game-chip shrink-0"><span class="i-mdi-swap-horizontal-circle-outline" />{{ t('battle.round') }} {{ run.round }}</span>
       </div>
 
-      <div class="flex items-center gap-2">
-        <span v-if="run.status === 'fighting' && !paused" class="flex items-center gap-1.5 text-red-300">
+      <div class="flex shrink-0 items-center gap-1 sm:gap-2">
+        <span v-if="run.status === 'fighting' && !paused" class="hidden items-center gap-1.5 text-red-300 sm:flex">
           <span class="h-2 w-2 animate-pulse rounded-full bg-red-500" />{{ t('battle.autoFighting') }}
         </span>
         <span v-else-if="run.status === 'fighting'" class="text-amber-300">{{ t('battle.paused') }}</span>
 
+        <!-- 倍速 -->
+        <button class="icon-mini" @click="cycleSpeed">
+          <span class="i-mdi-play-speed" />{{ speed }}x
+        </button>
         <button class="icon-mini" @click="paused = !paused">
           <span :class="paused ? 'i-mdi-play' : 'i-mdi-pause'" />
         </button>
@@ -43,7 +47,7 @@
       </div>
 
       <!-- 已获得祝福 -->
-      <div class="flex max-w-40% items-center gap-1 overflow-hidden">
+      <div class="hidden max-w-40% items-center gap-1 overflow-hidden md:flex">
         <span v-for="b in activeBoons" :key="b.id" class="flex items-center rounded bg-purple-500/15 px-1.5 py-0.5 text-10px text-purple-200" :title="b.desc">
           <span :class="b.icon" class="mr-0.5" />{{ b.name }}
         </span>
@@ -55,7 +59,7 @@
       <ZoneTag :text="t('battle.playerArea')" color="green" />
       <div class="pointer-events-none absolute inset-0 opacity-[0.07]" style="background-image: radial-gradient(circle at 25% 70%, #00dc82 0, transparent 40%), radial-gradient(circle at 75% 30%, #00dc82 0, transparent 35%)" />
 
-      <div class="relative z-1 flex items-end justify-center gap-6">
+      <div class="relative z-1 flex items-end justify-center gap-3 sm:gap-6">
         <UnitCard
           v-for="u in allies"
           :key="u.id"
@@ -65,7 +69,7 @@
       </div>
 
       <!-- 战斗日志 -->
-      <div class="log-scroll absolute bottom-2 right-3 z-2 h-32 w-60 overflow-y-auto rounded-lg border border-white/10 bg-black/55 p-2 text-10px leading-4">
+      <div class="log-scroll absolute bottom-2 right-2 z-2 h-24 w-36 overflow-y-auto rounded-lg border border-white/10 bg-black/55 p-1.5 text-10px leading-4 sm:right-3 sm:h-32 sm:w-60 sm:p-2">
         <div
           v-for="line in [...run.logs].reverse()"
           :key="line.id"
@@ -83,15 +87,15 @@
     </section>
 
     <!-- ===== 底部功能导航 ===== -->
-    <nav class="flex h-14 shrink-0 items-stretch justify-around border-t border-white/10 bg-[#0e141b]">
+    <nav class="safe-bottom flex h-14 shrink-0 items-stretch justify-around border-t border-white/10 bg-[#0e141b]">
       <button
         v-for="n in navs"
         :key="n.key"
-        class="relative flex flex-1 flex-col items-center justify-center gap-0.5 text-white/60 transition hover:bg-white/5 hover:text-white"
+        class="relative flex flex-1 flex-col items-center justify-center gap-0.5 text-white/60 transition active:bg-white/10 hover:bg-white/5 hover:text-white"
         @click="openPanel(n.key)"
       >
-        <span :class="n.icon" class="text-22px" />
-        <span class="text-11px">{{ t(n.label) }}</span>
+        <span :class="n.icon" class="text-20px sm:text-22px" />
+        <span class="text-10px sm:text-11px">{{ t(n.label) }}</span>
         <span
           v-if="n.key === 'quest' && claimable"
           class="absolute right-[22%] top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[#0e141b]"
@@ -206,6 +210,13 @@ const { run } = store
 const pf = store.profile
 
 const paused = ref(false)
+const speed = ref(1)
+
+const SPEEDS = [1, 2, 3]
+function cycleSpeed() {
+  const idx = SPEEDS.indexOf(speed.value)
+  speed.value = SPEEDS[(idx + 1) % SPEEDS.length]
+}
 
 onMounted(() => {
   if (!store.hasSave.value) {
@@ -216,11 +227,12 @@ onMounted(() => {
     store.startRun()
 })
 
-// 自动战斗心跳
+// 自动战斗心跳（倍速控制间隔）
+const baseInterval = 900
 useIntervalFn(() => {
   if (run.status === 'fighting' && !paused.value && !store.activePanel.value)
     store.battleTick()
-}, 900)
+}, () => Math.max(150, Math.round(baseInterval / speed.value)))
 
 // 魔塔普通层胜利后自动进入下一层
 watch(() => run.status, (s) => {

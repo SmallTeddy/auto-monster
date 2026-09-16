@@ -28,10 +28,10 @@
           v-if="unit.boss"
           class="absolute -top-2 left-1/2 -translate-x-1/2 rounded bg-red-600 px-1.5 text-10px font-bold leading-4 text-white"
         >BOSS</span>
-        <Sprite :src="unit.sprite" :size="unit.boss ? 88 : 64" />
+        <Sprite :src="unit.sprite" :size="spriteSize" />
       </div>
 
-      <div class="mt-1.5 w-86px text-center">
+      <div class="mt-1.5 w-64px text-center sm:w-86px">
         <div class="truncate text-12px font-semibold" :class="unit.side === 'enemy' ? 'text-red-200' : 'text-green-200'">
           {{ unit.name }}
           <span class="text-white/40">Lv{{ unit.level }}</span>
@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { BattleUnit, FloatText } from '@/game/types'
 import Sprite from './Sprite.vue'
 import HpBar from './HpBar.vue'
@@ -63,5 +63,19 @@ watch(() => props.unit.hp, (nv, ov) => {
     clearTimeout(timer)
     timer = setTimeout(() => (shaking.value = false), 260)
   }
+})
+
+// 响应式尺寸：移动端缩小精灵
+const baseSize = props.unit.boss ? 88 : 64
+const spriteSize = ref(baseSize)
+function updateSize() {
+  spriteSize.value = window.innerWidth < 640 ? Math.round(baseSize * 0.72) : baseSize
+}
+onMounted(() => {
+  updateSize()
+  window.addEventListener('resize', updateSize)
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', updateSize)
 })
 </script>

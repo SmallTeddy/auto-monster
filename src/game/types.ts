@@ -184,5 +184,6 @@ export interface Profile {
   stamina: number
   staminaAt: number
   dungeonCount: Record<string, number>
+  autoRecycle: boolean
   createdAt: number
 }

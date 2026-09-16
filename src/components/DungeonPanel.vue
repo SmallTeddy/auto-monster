@@ -33,14 +33,25 @@
             >{{ rewardName(r.defId) }} x{{ r.count }}</span>
             <span v-if="d.rewards.egg" class="rounded bg-pink-500/15 px-2 py-0.5 text-pink-200"><span class="i-mdi-egg-outline mr-0.5" />{{ t('pet.egg') }}</span>
           </div>
-          <button
-            class="game-btn w-full"
-            :disabled="pf.level < d.needLevel || pf.stamina < d.cost || inDungeon"
-            @click="store.enterDungeon(d.id)"
-          >
-            <span class="i-mdi-sword-cross mr-1" />
-            {{ pf.level < d.needLevel ? `${t('common.locked')} · ${t('dungeon.recommended', { lv: d.needLevel })}` : `${t('dungeon.enter')} (${t('dungeon.cost', { n: d.cost })})` }}
-          </button>
+          <div class="flex flex-col gap-2">
+            <button
+              class="game-btn w-full"
+              :disabled="pf.level < d.needLevel || pf.stamina < d.cost || inDungeon"
+              @click="store.enterDungeon(d.id)"
+            >
+              <span class="i-mdi-sword-cross mr-1" />
+              {{ pf.level < d.needLevel ? `${t('common.locked')} · ${t('dungeon.recommended', { lv: d.needLevel })}` : `${t('dungeon.enter')} (${t('dungeon.cost', { n: d.cost })})` }}
+            </button>
+            <button
+              v-if="pf.dungeonCount[d.id]"
+              class="game-btn-purple w-full text-12px"
+              :disabled="pf.stamina < d.cost * 2 || inDungeon"
+              :title="`消耗 ${d.cost * 2} 体力立即结算奖励`"
+              @click="store.sweepDungeon(d.id)"
+            >
+              <span class="i-mdi-fast-forward mr-1" />扫荡 ({{ d.cost * 2 }}体力)
+            </button>
+          </div>
         </div>
       </div>
     </div>

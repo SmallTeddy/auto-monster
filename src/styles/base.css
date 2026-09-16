@@ -10,7 +10,7 @@ body {
     box-sizing: border-box;
     font-family: 'pixel-font', sans-serif;
     font-weight: 600;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     --uno: bg-base;
 

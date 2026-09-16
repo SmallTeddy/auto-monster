@@ -1,14 +1,14 @@
 <template>
   <Teleport to="body">
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4"
       @click.self="$emit('close')"
     >
       <div
-        class="panel-in flex max-h-[88vh] w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#121821] shadow-2xl"
+        class="panel-in flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#121821] shadow-2xl sm:max-h-[88vh]"
         :class="widthClass"
       >
-        <header class="flex items-center justify-between border-b border-white/10 px-5 py-3">
+        <header class="flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-5">
           <h2 class="flex items-center gap-2 text-16px font-bold text-white">
             <span v-if="icon" :class="icon" class="text-primary text-18px" />
             {{ title }}
@@ -21,10 +21,10 @@
             <span class="i-mdi-close text-18px" />
           </button>
         </header>
-        <div class="panel-scroll flex-1 overflow-y-auto p-5">
+        <div class="panel-scroll flex-1 overflow-y-auto p-4 sm:p-5">
           <slot />
         </div>
-        <footer v-if="$slots.footer" class="border-t border-white/10 px-5 py-3">
+        <footer v-if="$slots.footer" class="border-t border-white/10 px-4 py-3 sm:px-5">
           <slot name="footer" />
         </footer>
       </div>

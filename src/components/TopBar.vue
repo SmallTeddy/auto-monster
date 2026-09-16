@@ -1,48 +1,47 @@
 <template>
-  <header class="flex h-11 shrink-0 items-center justify-between border-b border-white/10 bg-[#0e141b] px-3">
-    <div class="flex items-center gap-2">
+  <header class="safe-top flex h-11 shrink-0 items-center justify-between gap-1 border-b border-white/10 bg-[#0e141b] px-2 sm:px-3">
+    <div class="flex shrink-0 items-center gap-2">
       <img src="/icons/game.svg" alt="logo" class="h-5 w-5">
-      <span class="text-14px font-bold tracking-wide text-white">{{ t('app.title') }}</span>
-      <span class="rounded bg-white/10 px-1.5 py-0.5 text-10px text-white/60">{{ t('app.subtitle') }}</span>
+      <span class="hidden text-14px font-bold tracking-wide text-white sm:inline">{{ t('app.title') }}</span>
     </div>
 
-    <div class="flex items-center gap-2 text-12px">
+    <div class="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto no-scrollbar sm:gap-2">
       <!-- 等级 -->
-      <div class="flex items-center gap-1.5 rounded-lg bg-white/5 px-2 py-1" title="Lv">
+      <div class="flex shrink-0 items-center gap-1.5 rounded-lg bg-white/5 px-1.5 py-1 sm:px-2" title="Lv">
         <span class="i-mdi-shield-account-outline text-primary" />
-        <span class="font-semibold">{{ t('common.level') }}{{ pf.level }}</span>
-        <div class="h-1.5 w-14 overflow-hidden rounded-full bg-black/50">
+        <span class="text-11px font-semibold sm:text-12px">{{ t('common.level') }}{{ pf.level }}</span>
+        <div class="hidden h-1.5 w-14 overflow-hidden rounded-full bg-black/50 sm:block">
           <div class="h-full bg-primary" :style="{ width: `${expPct}%` }" />
         </div>
       </div>
       <!-- 层数 -->
-      <div v-if="run.started" class="flex items-center gap-1 rounded-lg bg-white/5 px-2 py-1">
+      <div v-if="run.started" class="flex shrink-0 items-center gap-1 rounded-lg bg-white/5 px-1.5 py-1 sm:px-2">
         <span class="i-mdi-tower-fire text-orange-400" />
-        <span>{{ run.mode === 'dungeon' ? dungeonName : `${t('common.floor')}${run.floor}` }}</span>
+        <span class="text-11px sm:text-12px">{{ run.mode === 'dungeon' ? dungeonName : `${t('common.floor')}${run.floor}` }}</span>
       </div>
       <!-- 金币 -->
-      <div class="flex items-center gap-1 rounded-lg bg-white/5 px-2 py-1">
+      <div class="flex shrink-0 items-center gap-1 rounded-lg bg-white/5 px-1.5 py-1 sm:px-2">
         <span class="i-mdi-cash-multiple text-yellow-400" />
-        <span class="font-semibold text-yellow-200">{{ pf.gold }}</span>
+        <span class="text-11px font-semibold text-yellow-200 sm:text-12px">{{ pf.gold }}</span>
       </div>
       <!-- 结晶 -->
-      <div class="flex items-center gap-1 rounded-lg bg-white/5 px-2 py-1">
+      <div class="hidden shrink-0 items-center gap-1 rounded-lg bg-white/5 px-2 py-1 md:flex">
         <span class="i-mdi-diamond-outline text-cyan-300" />
-        <span class="font-semibold text-cyan-100">{{ pf.soul }}</span>
+        <span class="text-12px font-semibold text-cyan-100">{{ pf.soul }}</span>
       </div>
       <!-- 强化石 -->
-      <div class="flex items-center gap-1 rounded-lg bg-white/5 px-2 py-1">
+      <div class="hidden shrink-0 items-center gap-1 rounded-lg bg-white/5 px-2 py-1 md:flex">
         <span class="i-mdi-hexagon-multiple-outline text-violet-300" />
-        <span class="font-semibold text-violet-100">{{ pf.stone }}</span>
+        <span class="text-12px font-semibold text-violet-100">{{ pf.stone }}</span>
       </div>
       <!-- 体力 -->
-      <div class="flex items-center gap-1 rounded-lg bg-white/5 px-2 py-1">
+      <div class="flex shrink-0 items-center gap-1 rounded-lg bg-white/5 px-1.5 py-1 sm:px-2">
         <span class="i-mdi-lightning-bolt text-green-400" />
-        <span class="font-semibold">{{ Math.floor(pf.stamina) }}/{{ store.STAMINA_MAX }}</span>
+        <span class="text-11px font-semibold sm:text-12px">{{ Math.floor(pf.stamina) }}/{{ store.STAMINA_MAX }}</span>
       </div>
     </div>
 
-    <div class="flex items-center gap-1">
+    <div class="flex shrink-0 items-center gap-0.5 sm:gap-1">
       <button
         class="icon-btn"
         :title="t('common.refresh')"
@@ -50,7 +49,7 @@
       >
         <span class="i-mdi-restart text-18px" />
       </button>
-      <button class="icon-btn" title="GitHub" @click="openGithub">
+      <button class="hidden icon-btn sm:flex" title="GitHub" @click="openGithub">
         <span class="i-mdi-github text-18px" />
       </button>
       <button class="icon-btn px-2 text-11px font-semibold" @click="store.toggleLang()">

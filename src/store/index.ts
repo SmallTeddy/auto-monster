@@ -74,6 +74,7 @@ function defaultProfile(heroId: string): Profile {
     stamina: 100,
     staminaAt: Date.now(),
     dungeonCount: {},
+    autoRecycle: false,
     createdAt: Date.now(),
   }
 }
@@ -123,6 +124,9 @@ export const useGlobalState = createGlobalState(() => {
     })
     if (merged)
       pf.stone = (pf.stone ?? 0) + merged
+    // 旧存档迁移：补充 autoRecycle 字段
+    if (pf.autoRecycle === undefined)
+      pf.autoRecycle = false
   }
 
   const toasts = ref<Toast[]>([])
@@ -170,6 +174,11 @@ export const useGlobalState = createGlobalState(() => {
   function toggleLang() {
     lang.value = lang.value === 'zh-CN' ? 'en-US' : 'zh-CN'
     i18n.global.locale.value = lang.value
+  }
+  function toggleAutoRecycle() {
+    const pf = p()
+    pf.autoRecycle = !pf.autoRecycle
+    toast(pf.autoRecycle ? '自动回收已开启' : '自动回收已关闭', pf.autoRecycle ? 'success' : 'info')
   }
 
   // ---------------- 任务事件 ----------------
@@ -260,14 +269,21 @@ export const useGlobalState = createGlobalState(() => {
     }
   }
 
-  function addItem(item: BagItem): { added: boolean, autoSold: number } {
+  function addItem(item: BagItem): { added: boolean, autoSold: number, autoRecycled: boolean } {
     const pf = p()
     if (stackIntoBag(pf.bag, item))
-      return { added: true, autoSold: 0 }
+      return { added: true, autoSold: 0, autoRecycled: false }
+    // 背包满：开启自动回收时，普通品质装备自动分解
+    if (pf.autoRecycle && item.kind === 'equip' && (item.rarity ?? 'common') === 'common') {
+      const gain = recycleGain(item)
+      pf.stone += gain.stone
+      pf.soul += gain.soul
+      return { added: false, autoSold: 0, autoRecycled: true }
+    }
     // 背包满：装备自动出售，其余丢弃
     const gold = item.kind === 'equip' ? sellPrice(item) : 0
     pf.gold += gold
-    return { added: false, autoSold: gold }
+    return { added: false, autoSold: gold, autoRecycled: false }
   }
 
   function addPet(pet: Pet) {
@@ -592,6 +608,47 @@ export const useGlobalState = createGlobalState(() => {
     activePanel.value = ''
     loadDungeonWave()
   }
+  // 副本扫荡：已通关的副本可消耗双倍体力立即结算奖励
+  function sweepDungeon(id: string) {
+    syncStamina()
+    const pf = p()
+    const def = dungeonDef(id)
+    if (!pf.dungeonCount[id]) {
+      toast('需先通关该副本', 'error')
+      return
+    }
+    const cost = def.cost * 2
+    if (pf.stamina < cost) {
+      toast(`体力不足（需 ${cost}）`, 'error')
+      return
+    }
+    pf.stamina -= cost
+    pf.staminaAt = Date.now()
+    // 直接发放奖励
+    pf.gold += def.rewards.gold
+    run.goldGained += def.rewards.gold
+    gainExp(def.rewards.exp)
+    for (const item of def.rewards.items) {
+      if (item.defId === 'stone')
+        pf.stone += item.count
+      else
+        addItem({ uid: uid('it'), kind: 'consumable', defId: item.defId, count: item.count })
+    }
+    if (def.rewards.egg) {
+      const pet = genPet(def.level, undefined)
+      addPet(pet)
+    }
+    pf.dungeonCount[id] += 1
+    track('dungeonClear', 1)
+    run.lastReward = {
+      gold: def.rewards.gold,
+      exp: def.rewards.exp,
+      drops: [],
+      stone: def.rewards.items.find(i => i.defId === 'stone')?.count ?? 0,
+      egg: def.rewards.egg,
+    }
+    toast(`扫荡【${def.name}】成功！`, 'success')
+  }
   function loadDungeonWave() {
     const def = dungeonDef(run.dungeonDefId)
     run.units = [...createHeroUnits(p()), ...genDungeonWave(def, run.dungeonWave)]
@@ -671,6 +728,8 @@ export const useGlobalState = createGlobalState(() => {
         const r = addItem(drop)
         if (r.added)
           drops.push(drop)
+        else if (r.autoRecycled)
+          toast('背包已满，普通装备已自动回收', 'info')
         else
           toast(`${i18n.global.t('bag.bagFull')} (+${r.autoSold})`, 'info')
       }
@@ -775,14 +834,14 @@ export const useGlobalState = createGlobalState(() => {
 
   return {
     profile, lang, toasts, toast, run, activePanel, hasSave,
-    createSave, deleteSave, toggleLang,
+    createSave, deleteSave, toggleLang, toggleAutoRecycle,
     questProgress, claimableCount, claimQuest,
     syncStamina, gainExp, addItem, addPet,
     sortBag, sellItem, recycleItem, usePotion,
     equipItem, unequipItem, enhanceItem, upgradeItem,
     refreshShop, buyShop,
     deployPet, withdrawPet, trainPet, petSellPrice, sellPet, recyclePet,
-    dungeonDef, enterDungeon, nextDungeonWave, abandonDungeon, exitToTower,
+    dungeonDef, enterDungeon, sweepDungeon, nextDungeonWave, abandonDungeon, exitToTower,
     startRun, nextTowerFloor, chooseBoon, battleTick,
     track, STAMINA_MAX,
   }

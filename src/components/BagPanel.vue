@@ -4,6 +4,14 @@
       <span class="text-12px text-white/50">
         {{ t('bag.capacity') }} {{ pf.bag.length }}/{{ BAG_CAP }}
       </span>
+      <button
+        class="ml-2 rounded-lg px-2.5 py-1 text-12px transition"
+        :class="pf.autoRecycle ? 'bg-cyan-500/20 text-cyan-300' : 'bg-white/10 text-white/60 hover:bg-white/20'"
+        :title="pf.autoRecycle ? '已开启：背包满时自动回收普通装备' : '点击开启：背包满时自动回收普通装备'"
+        @click="store.toggleAutoRecycle()"
+      >
+        <span class="i-mdi-recycle mr-0.5" />{{ pf.autoRecycle ? '自动回收: 开' : '自动回收: 关' }}
+      </button>
       <button class="ml-2 rounded-lg bg-primary/20 px-2.5 py-1 text-12px text-primary hover:bg-primary/30" @click="store.sortBag()">
         <span class="i-mdi-sort-alphabetical-variant mr-0.5" />{{ t('common.sort') }}
       </button>
@@ -39,13 +47,13 @@
       </div>
     </div>
 
-    <div class="flex gap-4">
+    <div class="flex flex-col gap-4 sm:flex-row">
       <!-- 背包格子 -->
       <div class="min-w-0 flex-1">
         <div v-if="!pf.bag.length" class="flex h-40 items-center justify-center rounded-xl border border-dashed border-white/15 text-13px text-white/35">
           {{ t('bag.empty') }}
         </div>
-        <div v-else class="grid grid-cols-6 gap-2 sm:grid-cols-8">
+        <div v-else class="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
           <ItemTile
             v-for="item in pf.bag"
             :key="item.uid"
@@ -57,7 +65,7 @@
       </div>
 
       <!-- 详情 / 操作 -->
-      <div class="w-60 shrink-0 rounded-xl border border-white/10 bg-black/30 p-4">
+      <div class="w-full shrink-0 rounded-xl border border-white/10 bg-black/30 p-4 sm:w-60">
         <template v-if="detailItem">
           <div class="mb-1 flex items-center gap-2">
             <span :class="detailIcon" class="text-22px" :style="{ color: detailColor }" />
