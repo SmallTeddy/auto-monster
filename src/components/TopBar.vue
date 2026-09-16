@@ -1,8 +1,14 @@
 <template>
   <header class="safe-top flex h-11 shrink-0 items-center justify-between gap-1 border-b border-white/10 bg-[#0e141b] px-2 sm:px-3">
     <div class="flex shrink-0 items-center gap-2">
-      <img src="/icons/game.svg" alt="logo" class="h-5 w-5">
-      <span class="hidden text-14px font-bold tracking-wide text-white sm:inline">{{ t('app.title') }}</span>
+      <button
+        class="flex items-center gap-2 rounded-lg px-1 py-0.5 transition hover:bg-white/10"
+        :title="t('hero.infoTitle')"
+        @click="showHeroInfo = true"
+      >
+        <img src="/icons/game.svg" alt="logo" class="h-5 w-5">
+        <span class="hidden text-14px font-bold tracking-wide text-white sm:inline">{{ t('app.title') }}</span>
+      </button>
     </div>
 
     <div class="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto no-scrollbar sm:gap-2">
@@ -49,30 +55,26 @@
       >
         <span class="i-mdi-restart text-18px" />
       </button>
-      <button class="hidden icon-btn sm:flex" title="GitHub" @click="openGithub">
-        <span class="i-mdi-github text-18px" />
-      </button>
-      <button class="icon-btn px-2 text-11px font-semibold" @click="store.toggleLang()">
-        {{ lang === 'zh-CN' ? 'EN' : '中' }}
-      </button>
-      <button class="icon-btn" :title="isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'" @click="toggle()">
-        <span :class="isFullscreen ? 'i-mdi-fullscreen-exit text-18px' : 'i-mdi-fullscreen text-18px'" />
-      </button>
     </div>
+
+    <!-- 角色信息弹框 -->
+    <HeroInfoPanel v-if="showHeroInfo" @close="showHeroInfo = false" />
   </header>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useIntervalFn, useFullscreen } from '@vueuse/core'
+import { computed, ref } from 'vue'
+import { useIntervalFn } from '@vueuse/core'
 import { useGlobalState } from '@/store'
 import { expNeed } from '@/game/engine/stats'
+import HeroInfoPanel from './HeroInfoPanel.vue'
 
 const { t } = useI18n()
 const store = useGlobalState()
 const pf = store.profile
-const { run, lang } = store
-const { isFullscreen, toggle } = useFullscreen()
+const { run } = store
+
+const showHeroInfo = ref(false)
 
 useIntervalFn(() => store.syncStamina(), 5000)
 
@@ -82,9 +84,6 @@ const dungeonName = computed(() => store.dungeonDef(run.dungeonDefId).name)
 function restart() {
   if (confirm(run.mode === 'dungeon' ? '放弃当前副本并回到魔塔第 1 层？' : '重新开始本次冒险？（装备物品保留）'))
     store.startRun()
-}
-function openGithub() {
-  window.open('https://github.com', '_blank')
 }
 </script>
 
