@@ -18,6 +18,7 @@ const zhCN = {
     confirm: '确认',
     cancel: '取消',
     close: '关闭',
+    ok: '确定',
     buy: '购买',
     sell: '出售',
     recycle: '回收',
@@ -74,6 +75,11 @@ const zhCN = {
     cd: '冷却',
     boons: '已获祝福',
     noBoons: '尚未获得祝福，击败首领后可选择',
+  },
+  confirm: {
+    autoConfirm: '10 秒后自动确认',
+    ok: '确定',
+    cancel: '取消',
   },
   battle: {
     enemyArea: '电脑区域',
@@ -238,6 +244,11 @@ const enUS: MessageSchema = {
     cd: 'CD',
     boons: 'Active Boons',
     noBoons: 'No boon yet — defeat a boss to choose one',
+  },
+  confirm: {
+    autoConfirm: 'Auto-confirm in 10s',
+    ok: 'OK',
+    cancel: 'Cancel',
   },
   battle: {
     enemyArea: 'Enemy Zone',

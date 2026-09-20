@@ -23,6 +23,15 @@ export interface Toast {
   type: 'info' | 'success' | 'error'
 }
 
+export interface ConfirmState {
+  open: boolean
+  title: string
+  message: string
+  /** 自动确认倒计时（秒），-1 表示不自动确认 */
+  countdown: number
+  resolve?: (value: boolean) => void
+}
+
 export interface RewardInfo {
   gold: number
   exp: number
@@ -138,6 +147,52 @@ export const useGlobalState = createGlobalState(() => {
     setTimeout(() => {
       toasts.value = toasts.value.filter(t => t.id !== id)
     }, 2200)
+  }
+
+  // ---------------- 全局确认弹框（10s 自动确认） ----------------
+  const confirmDialog = reactive<ConfirmState>({
+    open: false,
+    title: '',
+    message: '',
+    countdown: -1,
+  })
+  let confirmTimer: ReturnType<typeof setInterval> | null = null
+
+  function confirm(message: string, title = '提示'): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+      // 若已有弹框，先关闭
+      resolveConfirm(false)
+      confirmDialog.title = title
+      confirmDialog.message = message
+      confirmDialog.countdown = 10
+      confirmDialog.resolve = resolve
+      confirmDialog.open = true
+      // 每秒递减，到 0 自动确认
+      if (confirmTimer)
+        clearInterval(confirmTimer)
+      confirmTimer = setInterval(() => {
+        confirmDialog.countdown -= 1
+        if (confirmDialog.countdown <= 0) {
+          if (confirmTimer) {
+            clearInterval(confirmTimer)
+            confirmTimer = null
+          }
+          resolveConfirm(true)
+        }
+      }, 1000)
+    })
+  }
+
+  function resolveConfirm(value: boolean) {
+    if (confirmTimer) {
+      clearInterval(confirmTimer)
+      confirmTimer = null
+    }
+    const resolve = confirmDialog.resolve
+    confirmDialog.open = false
+    confirmDialog.resolve = undefined
+    confirmDialog.countdown = -1
+    resolve?.(value)
   }
 
   const run = reactive<RunState>({
@@ -863,6 +918,7 @@ export const useGlobalState = createGlobalState(() => {
 
   return {
     profile, lang, toasts, toast, run, activePanel, hasSave,
+    confirmDialog, confirm, resolveConfirm,
     createSave, deleteSave, toggleLang, toggleAutoRecycle,
     questProgress, claimableCount, claimQuest,
     syncStamina, gainExp, addItem, addPet,

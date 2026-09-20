@@ -124,8 +124,9 @@ function continueGame() {
   store.startRun()
   router.push('/battle')
 }
-function resetSave() {
-  if (confirm(t('home.resetConfirm'))) {
+async function resetSave() {
+  const ok = await store.confirm(t('home.resetConfirm'))
+  if (ok) {
     store.deleteSave()
     selected.value = HEROES[0].id
   }

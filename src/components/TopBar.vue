@@ -81,8 +81,10 @@ useIntervalFn(() => store.syncStamina(), 5000)
 const expPct = computed(() => Math.min(100, (pf.value!.exp / expNeed(pf.value!.level)) * 100))
 const dungeonName = computed(() => store.dungeonDef(run.dungeonDefId).name)
 
-function restart() {
-  if (confirm(run.mode === 'dungeon' ? '放弃当前副本并回到魔塔第 1 层？' : '重新开始本次冒险？（装备物品保留）'))
+async function restart() {
+  const msg = run.mode === 'dungeon' ? '放弃当前副本并回到魔塔第 1 层？' : '重新开始本次冒险？（装备物品保留）'
+  const ok = await store.confirm(msg)
+  if (ok)
     store.startRun()
 }
 </script>
