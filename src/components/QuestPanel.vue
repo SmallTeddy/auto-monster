@@ -4,6 +4,13 @@
       <h3 class="mb-2 flex items-center gap-2 text-13px font-bold text-sky-300">
         <span class="i-mdi-calendar-sync" />{{ t('quest.daily') }}
         <span class="text-11px font-normal text-white/40">· {{ t('quest.resetDaily') }}</span>
+        <button
+          class="ml-auto flex items-center gap-1 rounded-lg bg-yellow-500/20 px-2 py-1 text-11px text-yellow-300 hover:bg-yellow-500/30"
+          :disabled="pf.gold < store.DAILY_REFRESH_COST"
+          @click="store.refreshDaily()"
+        >
+          <span class="i-mdi-refresh" />{{ t('quest.refresh') }} ({{ store.DAILY_REFRESH_COST }}金)
+        </button>
       </h3>
       <div class="space-y-2">
         <div
@@ -93,6 +100,7 @@ defineEmits<{ close: [] }>()
 
 const { t } = useI18n()
 const store = useGlobalState()
+const pf = store.profile
 
 function progress(qid: string): number {
   const def = QUESTS.find(q => q.id === qid)!

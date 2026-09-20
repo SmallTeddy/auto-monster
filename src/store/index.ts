@@ -1,7 +1,7 @@
 import { computed, reactive, ref } from 'vue'
 import { createGlobalState, useStorage } from '@vueuse/core'
 import type {
-  BagItem, BattleUnit, DungeonDef, FloatText, LogLine, Pet, Profile,
+  AutoHandleCfg, BagItem, BattleUnit, DungeonDef, FloatText, LogLine, Pet, Profile,
 } from '@/game/types'
 import { i18n } from '@/locales'
 import { spriteByName } from '@/game/assets'
@@ -74,17 +74,19 @@ function defaultProfile(heroId: string): Profile {
       { uid: uid('it'), kind: 'consumable', defId: 'potion_s', count: 3 },
     ],
     equipped: {},
+    slotEnhance: { weapon: 0, armor: 0, accessory: 0 },
     pets: [starter],
     bestFloor: 0,
     boons: [],
     shop: { stock: genShopStock(1), sold: [false, false, false, false, false, false], refreshCount: 0 },
-    daily: { date: todayStr(), progress: {}, claimed: {} },
+    daily: { date: todayStr(), progress: {}, claimed: {}, refreshCount: 0 },
     achievements: { progress: {}, claimed: {} },
     stats: {},
     stamina: 100,
     staminaAt: Date.now(),
     dungeonCount: {},
-    autoRecycle: false,
+    autoRecycleCfg: { enabled: false, minLevel: 1, maxLevel: 999, rarities: ['common'] },
+    autoSellCfg: { enabled: false, minLevel: 1, maxLevel: 999, rarities: ['common'] },
     createdAt: Date.now(),
   }
 }
@@ -134,9 +136,19 @@ export const useGlobalState = createGlobalState(() => {
     })
     if (merged)
       pf.stone = (pf.stone ?? 0) + merged
-    // 旧存档迁移：补充 autoRecycle 字段
-    if (pf.autoRecycle === undefined)
-      pf.autoRecycle = false
+    // 旧存档迁移：补充新增字段
+    const anyPf = pf as any
+    if (!pf.slotEnhance)
+      pf.slotEnhance = { weapon: 0, armor: 0, accessory: 0 }
+    if (!pf.daily.refreshCount)
+      pf.daily.refreshCount = 0
+    if (pf.autoRecycleCfg === undefined) {
+      // 兼容旧的 autoRecycle 布尔字段
+      const oldRecycle = anyPf.autoRecycle === true
+      pf.autoRecycleCfg = { enabled: oldRecycle, minLevel: 1, maxLevel: 999, rarities: ['common'] }
+    }
+    if (pf.autoSellCfg === undefined)
+      pf.autoSellCfg = { enabled: false, minLevel: 1, maxLevel: 999, rarities: ['common'] }
   }
 
   const toasts = ref<Toast[]>([])
@@ -164,7 +176,7 @@ export const useGlobalState = createGlobalState(() => {
       resolveConfirm(false)
       confirmDialog.title = title
       confirmDialog.message = message
-      confirmDialog.countdown = 10
+      confirmDialog.countdown = 5
       confirmDialog.resolve = resolve
       confirmDialog.open = true
       // 每秒递减，到 0 自动确认
@@ -233,15 +245,42 @@ export const useGlobalState = createGlobalState(() => {
   }
   function toggleAutoRecycle() {
     const pf = p()
-    pf.autoRecycle = !pf.autoRecycle
-    toast(pf.autoRecycle ? '自动回收已开启' : '自动回收已关闭', pf.autoRecycle ? 'success' : 'info')
+    pf.autoRecycleCfg.enabled = !pf.autoRecycleCfg.enabled
+    toast(pf.autoRecycleCfg.enabled ? '自动回收已开启' : '自动回收已关闭', pf.autoRecycleCfg.enabled ? 'success' : 'info')
+  }
+  function toggleAutoSell() {
+    const pf = p()
+    pf.autoSellCfg.enabled = !pf.autoSellCfg.enabled
+    toast(pf.autoSellCfg.enabled ? '自动出售已开启' : '自动出售已关闭', pf.autoSellCfg.enabled ? 'success' : 'info')
+  }
+  function updateAutoCfg(kind: 'recycle' | 'sell', patch: Partial<AutoHandleCfg>) {
+    const pf = p()
+    const cfg = kind === 'recycle' ? pf.autoRecycleCfg : pf.autoSellCfg
+    Object.assign(cfg, patch)
+  }
+
+  // ---------------- 刷新日常任务 ----------------
+  const DAILY_REFRESH_COST = 100
+  function refreshDaily(): boolean {
+    const pf = p()
+    if (pf.gold < DAILY_REFRESH_COST) {
+      toast(`金币不足（需 ${DAILY_REFRESH_COST}）`, 'error')
+      return false
+    }
+    pf.gold -= DAILY_REFRESH_COST
+    pf.daily.refreshCount += 1
+    // 重置所有日常任务进度与领取状态
+    pf.daily.progress = {}
+    pf.daily.claimed = {}
+    toast('日常任务已刷新', 'success')
+    return true
   }
 
   // ---------------- 任务事件 ----------------
   function ensureDaily() {
     const pf = p()
     if (pf.daily.date !== todayStr()) {
-      pf.daily = { date: todayStr(), progress: {}, claimed: {} }
+      pf.daily = { date: todayStr(), progress: {}, claimed: {}, refreshCount: 0 }
     }
   }
   function track(event: string, value = 1, mode: 'inc' | 'max' = 'inc') {
@@ -325,16 +364,32 @@ export const useGlobalState = createGlobalState(() => {
     }
   }
 
+  // 判断装备是否命中自动处理配置
+  function matchAutoCfg(item: BagItem, cfg: AutoHandleCfg): boolean {
+    if (!cfg.enabled || item.kind !== 'equip')
+      return false
+    const lv = item.itemLevel ?? 1
+    if (lv < cfg.minLevel || lv > cfg.maxLevel)
+      return false
+    return cfg.rarities.includes(item.rarity ?? 'common')
+  }
+
   function addItem(item: BagItem): { added: boolean, autoSold: number, autoRecycled: boolean } {
     const pf = p()
     if (stackIntoBag(pf.bag, item))
       return { added: true, autoSold: 0, autoRecycled: false }
-    // 背包满：开启自动回收时，普通品质装备自动分解
-    if (pf.autoRecycle && item.kind === 'equip' && (item.rarity ?? 'common') === 'common') {
+    // 背包满：自动回收优先
+    if (matchAutoCfg(item, pf.autoRecycleCfg)) {
       const gain = recycleGain(item)
       pf.stone += gain.stone
       pf.soul += gain.soul
       return { added: false, autoSold: 0, autoRecycled: true }
+    }
+    // 背包满：自动出售
+    if (matchAutoCfg(item, pf.autoSellCfg)) {
+      const gold = sellPrice(item)
+      pf.gold += gold
+      return { added: false, autoSold: gold, autoRecycled: false }
     }
     // 背包满：装备自动出售，其余丢弃
     const gold = item.kind === 'equip' ? sellPrice(item) : 0
@@ -368,19 +423,32 @@ export const useGlobalState = createGlobalState(() => {
 
   function sellItem(itemUid: string) {
     const pf = p()
+    // 先查背包
     const idx = pf.bag.findIndex(b => b.uid === itemUid)
-    if (idx === -1)
+    if (idx !== -1) {
+      const [item] = pf.bag.splice(idx, 1)
+      if (item.kind === 'equip') {
+        pf.gold += sellPrice(item)
+        toast(`+${sellPrice(item)} 金币`, 'success')
+      }
+      else {
+        const def = item.kind === 'consumable' ? getConsumableDef(item.defId) : getMaterialDef(item.defId)
+        const total = def.price * item.count
+        pf.gold += total
+        toast(`+${total} 金币`, 'success')
+      }
       return
-    const [item] = pf.bag.splice(idx, 1)
-    if (item.kind === 'equip') {
-      pf.gold += sellPrice(item)
-      toast(`+${sellPrice(item)} 金币`, 'success')
     }
-    else {
-      const def = item.kind === 'consumable' ? getConsumableDef(item.defId) : getMaterialDef(item.defId)
-      const total = def.price * item.count
-      pf.gold += total
-      toast(`+${total} 金币`, 'success')
+    // 再查装备栏位：卖出后强化保留在栏位上
+    for (const slot of ['weapon', 'armor', 'accessory'] as const) {
+      const item = pf.equipped[slot]
+      if (item && item.uid === itemUid) {
+        pf.gold += sellPrice(item)
+        pf.equipped[slot] = undefined
+        // slotEnhance 保留，不重置
+        toast(`+${sellPrice(item)} 金币（强化已保留在栏位）`, 'success')
+        return
+      }
     }
   }
 
@@ -400,6 +468,53 @@ export const useGlobalState = createGlobalState(() => {
     pf.soul += gain.soul
     track('recycle', 1)
     toast(`回收获得 ${gain.stone} 强化石、${gain.soul} 结晶`, 'success')
+  }
+
+  /** 一键出售背包中所有非装备（消耗品/材料）及可选装备 */
+  function sellAllEquips() {
+    const pf = p()
+    const before = pf.bag.length
+    let gold = 0
+    pf.bag = pf.bag.filter((it) => {
+      if (it.kind === 'equip') {
+        gold += sellPrice(it)
+        return false
+      }
+      return true
+    })
+    pf.gold += gold
+    const cnt = before - pf.bag.length
+    if (cnt > 0)
+      toast(`一键出售 ${cnt} 件装备，+${gold} 金币`, 'success')
+    else
+      toast('背包中没有装备', 'info')
+  }
+
+  /** 一键回收背包中所有装备 */
+  function recycleAllEquips() {
+    const pf = p()
+    const before = pf.bag.length
+    let stone = 0
+    let soul = 0
+    pf.bag = pf.bag.filter((it) => {
+      if (it.kind === 'equip') {
+        const g = recycleGain(it)
+        stone += g.stone
+        soul += g.soul
+        return false
+      }
+      return true
+    })
+    pf.stone += stone
+    pf.soul += soul
+    const cnt = before - pf.bag.length
+    if (cnt > 0) {
+      track('recycle', cnt)
+      toast(`一键回收 ${cnt} 件装备，+${stone} 强化石、+${soul} 结晶`, 'success')
+    }
+    else {
+      toast('背包中没有装备', 'info')
+    }
   }
 
   function usePotion(itemUid?: string): boolean {
@@ -445,6 +560,8 @@ export const useGlobalState = createGlobalState(() => {
       return m === 'w' ? 'weapon' : m === 'a' ? 'armor' : 'accessory'
     })()
     const old = pf.equipped[slot]
+    // 新装备继承槽位强化等级
+    item.enhance = pf.slotEnhance[slot]
     pf.equipped[slot] = item
     if (old)
       pf.bag.push(old)
@@ -466,13 +583,14 @@ export const useGlobalState = createGlobalState(() => {
     pf.equipped[slot] = undefined
   }
 
+  const MAX_ENHANCE = 99
   function enhanceItem(slot: 'weapon' | 'armor' | 'accessory') {
     const pf = p()
     const item = pf.equipped[slot]
     if (!item)
       return
-    const e = item.enhance ?? 0
-    if (e >= 15) {
+    const e = pf.slotEnhance[slot]
+    if (e >= MAX_ENHANCE) {
       toast(i18n.global.t('bag.enhanceMax'), 'error')
       return
     }
@@ -490,8 +608,9 @@ export const useGlobalState = createGlobalState(() => {
     pf.stone -= cost.stone
     track('enhance', 1)
     if (chance(cost.rate)) {
+      pf.slotEnhance[slot] = e + 1
       item.enhance = e + 1
-      toast(`${i18n.global.t('bag.enhanceSuccess')} +${item.enhance}`, 'success')
+      toast(`${i18n.global.t('bag.enhanceSuccess')} +${pf.slotEnhance[slot]}`, 'success')
     }
     else {
       toast(i18n.global.t('bag.enhanceFail'), 'error')
@@ -509,7 +628,7 @@ export const useGlobalState = createGlobalState(() => {
       toast('已达最高品阶', 'error')
       return
     }
-    if ((item.enhance ?? 0) < 5) {
+    if (pf.slotEnhance[slot] < 5) {
       toast('需要强化等级 +5 以上', 'error')
       return
     }
@@ -523,7 +642,8 @@ export const useGlobalState = createGlobalState(() => {
     pf.soul -= soulCost
     pf.gold -= goldCost
     item.rarity = next
-    item.enhance = (item.enhance ?? 5) - 5
+    pf.slotEnhance[slot] = Math.max(0, pf.slotEnhance[slot] - 5)
+    item.enhance = pf.slotEnhance[slot]
     toast(i18n.global.t('bag.upgradeSuccess'), 'success')
   }
 
@@ -919,11 +1039,11 @@ export const useGlobalState = createGlobalState(() => {
   return {
     profile, lang, toasts, toast, run, activePanel, hasSave,
     confirmDialog, confirm, resolveConfirm,
-    createSave, deleteSave, toggleLang, toggleAutoRecycle,
+    createSave, deleteSave, toggleLang, toggleAutoRecycle, toggleAutoSell, updateAutoCfg, refreshDaily, DAILY_REFRESH_COST,
     questProgress, claimableCount, claimQuest,
     syncStamina, gainExp, addItem, addPet,
-    sortBag, sellItem, recycleItem, usePotion,
-    equipItem, unequipItem, enhanceItem, upgradeItem,
+    sortBag, sellItem, recycleItem, sellAllEquips, recycleAllEquips, usePotion,
+    equipItem, unequipItem, enhanceItem, upgradeItem, MAX_ENHANCE,
     refreshShop, buyShop,
     deployPet, withdrawPet, trainPet, petSellPrice, sellPet, recyclePet,
     dungeonDef, enterDungeon, sweepDungeon, nextDungeonWave, abandonDungeon, exitToTower,

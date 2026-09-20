@@ -24,7 +24,7 @@
             <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-black/50">
               <div
                 class="h-full rounded-full bg-amber-400 transition-all duration-1000 ease-linear"
-                :style="{ width: `${(dialog.countdown / 10) * 100}%` }"
+                :style="{ width: `${(dialog.countdown / 5) * 100}%` }"
               />
             </div>
           </div>

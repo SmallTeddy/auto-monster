@@ -189,6 +189,17 @@ export interface ShopSlot {
   equip?: BagItem
 }
 
+/** 自动处理（回收/出售）配置 */
+export interface AutoHandleCfg {
+  enabled: boolean
+  /** 物品等级下限（含） */
+  minLevel: number
+  /** 物品等级上限（含） */
+  maxLevel: number
+  /** 命中的品阶列表 */
+  rarities: Rarity[]
+}
+
 export interface Profile {
   heroId: string
   level: number
@@ -198,16 +209,21 @@ export interface Profile {
   stone: number
   bag: BagItem[]
   equipped: { weapon?: BagItem, armor?: BagItem, accessory?: BagItem }
+  /** 装备栏位保留的强化等级（卖出装备时强化不丢失） */
+  slotEnhance: { weapon: number, armor: number, accessory: number }
   pets: Pet[]
   bestFloor: number
   boons: string[]
   shop: { stock: ShopSlot[], sold: boolean[], refreshCount: number }
-  daily: { date: string, progress: Record<string, number>, claimed: Record<string, boolean> }
+  daily: { date: string, progress: Record<string, number>, claimed: Record<string, boolean>, refreshCount: number }
   achievements: { progress: Record<string, number>, claimed: Record<string, boolean> }
   stats: Record<string, number>
   stamina: number
   staminaAt: number
   dungeonCount: Record<string, number>
-  autoRecycle: boolean
+  /** 自动回收配置 */
+  autoRecycleCfg: AutoHandleCfg
+  /** 自动出售配置 */
+  autoSellCfg: AutoHandleCfg
   createdAt: number
 }

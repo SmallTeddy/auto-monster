@@ -4,18 +4,79 @@
       <span class="text-12px text-white/50">
         {{ t('bag.capacity') }} {{ pf.bag.length }}/{{ BAG_CAP }}
       </span>
-      <button
-        class="ml-2 rounded-lg px-2.5 py-1 text-12px transition"
-        :class="pf.autoRecycle ? 'bg-cyan-500/20 text-cyan-300' : 'bg-white/10 text-white/60 hover:bg-white/20'"
-        :title="pf.autoRecycle ? '已开启：背包满时自动回收普通装备' : '点击开启：背包满时自动回收普通装备'"
-        @click="store.toggleAutoRecycle()"
-      >
-        <span class="i-mdi-recycle mr-0.5" />{{ pf.autoRecycle ? '自动回收: 开' : '自动回收: 关' }}
+      <!-- 一键出售 -->
+      <button class="ml-2 rounded-lg bg-yellow-500/20 px-2.5 py-1 text-12px text-yellow-300 hover:bg-yellow-500/30" @click="sellAllEquips">
+        <span class="i-mdi-cash-multiple mr-0.5" />一键出售
+      </button>
+      <!-- 一键回收 -->
+      <button class="ml-2 rounded-lg bg-cyan-500/20 px-2.5 py-1 text-12px text-cyan-300 hover:bg-cyan-500/30" @click="recycleAllEquips">
+        <span class="i-mdi-recycle mr-0.5" />一键回收
       </button>
       <button class="ml-2 rounded-lg bg-primary/20 px-2.5 py-1 text-12px text-primary hover:bg-primary/30" @click="store.sortBag()">
         <span class="i-mdi-sort-alphabetical-variant mr-0.5" />{{ t('common.sort') }}
       </button>
     </template>
+
+    <!-- 自动处理配置栏 -->
+    <div class="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <!-- 自动回收配置 -->
+      <div class="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-2.5">
+        <div class="mb-1.5 flex items-center justify-between">
+          <button
+            class="flex items-center gap-1 text-12px font-bold"
+            :class="pf.autoRecycleCfg.enabled ? 'text-cyan-300' : 'text-white/50'"
+            @click="store.toggleAutoRecycle()"
+          >
+            <span class="i-mdi-recycle" />自动回收
+            <span class="text-10px" :class="pf.autoRecycleCfg.enabled ? 'text-cyan-300' : 'text-white/30'">{{ pf.autoRecycleCfg.enabled ? '开' : '关' }}</span>
+          </button>
+          <span class="text-10px text-white/40">背包满时触发</span>
+        </div>
+        <div v-if="pf.autoRecycleCfg.enabled" class="space-y-1.5">
+          <div class="flex items-center gap-1.5 text-11px text-white/60">
+            <span>等级</span>
+            <input v-model.number="recycleMin" type="number" min="1" class="w-12 rounded bg-black/40 px-1.5 py-0.5 text-11px text-white outline-none" @change="onCfgChange('recycle')">
+            <span>~</span>
+            <input v-model.number="recycleMax" type="number" min="1" class="w-12 rounded bg-black/40 px-1.5 py-0.5 text-11px text-white outline-none" @change="onCfgChange('recycle')">
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <label v-for="r in rarities" :key="r" class="flex items-center gap-1 text-10px" :style="{ color: rarityColor(r) }">
+              <input type="checkbox" :checked="pf.autoRecycleCfg.rarities.includes(r)" @change="toggleRarity('recycle', r)">
+              {{ rarityLabel(r) }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 自动出售配置 -->
+      <div class="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-2.5">
+        <div class="mb-1.5 flex items-center justify-between">
+          <button
+            class="flex items-center gap-1 text-12px font-bold"
+            :class="pf.autoSellCfg.enabled ? 'text-yellow-300' : 'text-white/50'"
+            @click="store.toggleAutoSell()"
+          >
+            <span class="i-mdi-cash-multiple" />自动出售
+            <span class="text-10px" :class="pf.autoSellCfg.enabled ? 'text-yellow-300' : 'text-white/30'">{{ pf.autoSellCfg.enabled ? '开' : '关' }}</span>
+          </button>
+          <span class="text-10px text-white/40">背包满时触发</span>
+        </div>
+        <div v-if="pf.autoSellCfg.enabled" class="space-y-1.5">
+          <div class="flex items-center gap-1.5 text-11px text-white/60">
+            <span>等级</span>
+            <input v-model.number="sellMin" type="number" min="1" class="w-12 rounded bg-black/40 px-1.5 py-0.5 text-11px text-white outline-none" @change="onCfgChange('sell')">
+            <span>~</span>
+            <input v-model.number="sellMax" type="number" min="1" class="w-12 rounded bg-black/40 px-1.5 py-0.5 text-11px text-white outline-none" @change="onCfgChange('sell')">
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <label v-for="r in rarities" :key="r" class="flex items-center gap-1 text-10px" :style="{ color: rarityColor(r) }">
+              <input type="checkbox" :checked="pf.autoSellCfg.rarities.includes(r)" @change="toggleRarity('sell', r)">
+              {{ rarityLabel(r) }}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- 已装备 -->
     <div class="mb-4">
@@ -39,9 +100,9 @@
             <div class="text-11px text-white/40">{{ t(`slot.${s.key}`) }}</div>
             <div v-if="equipped(s.key)" class="truncate text-13px font-semibold" :style="{ color: rarityOf(equipped(s.key)!) }">
               {{ itemName(equipped(s.key)!) }}
-              <span class="text-cyan-300">+{{ equipped(s.key)!.enhance ?? 0 }}</span>
             </div>
             <div v-else class="text-12px text-white/30">—</div>
+            <div v-if="equipped(s.key)" class="text-10px text-cyan-300">+{{ equipped(s.key)!.enhance ?? 0 }} <span class="text-white/30">(栏位+{{ pf.slotEnhance[s.key] }})</span></div>
           </div>
         </div>
       </div>
@@ -65,16 +126,25 @@
       </div>
 
       <!-- 详情 / 操作 -->
-      <div class="w-full shrink-0 rounded-xl border border-white/10 bg-black/30 p-4 sm:w-60">
+      <div class="w-full shrink-0 rounded-xl border border-white/10 bg-black/30 p-4 sm:w-64">
         <template v-if="detailItem">
           <div class="mb-1 flex items-center gap-2">
             <span :class="detailIcon" class="text-22px" :style="{ color: detailColor }" />
             <span class="text-15px font-bold" :style="{ color: detailColor }">{{ detailName }}</span>
+            <span v-if="detailItem.kind === 'equip'" class="ml-auto text-12px text-cyan-300">+{{ detailItem.enhance ?? 0 }}</span>
           </div>
           <div v-if="detailItem.kind === 'equip'" class="mb-1 text-11px text-white/45">
             {{ t(`slot.${detailSlot}`) }} · Lv{{ detailItem.itemLevel }} · {{ t(`rarity.${detailItem.rarity}`) }}
           </div>
           <div class="mb-3 text-12px leading-5 text-green-300/90">{{ itemDesc(detailItem) }}</div>
+
+          <!-- 装备对比（选中背包装备时显示） -->
+          <template v-if="detailItem.kind === 'equip' && !isEquipped && equippedInSameSlot">
+            <div class="mb-3 rounded-lg border border-white/10 bg-black/30 p-2">
+              <div class="mb-1 text-10px text-white/40">当前装备：{{ itemName(equippedInSameSlot) }} +{{ equippedInSameSlot.enhance ?? 0 }}</div>
+              <div class="text-11px text-green-300/80">{{ itemDesc(equippedInSameSlot) }}</div>
+            </div>
+          </template>
 
           <!-- 装备操作 -->
           <template v-if="detailItem.kind === 'equip'">
@@ -91,7 +161,7 @@
             <div v-else class="space-y-2">
               <!-- 强化 -->
               <button class="game-btn w-full" :disabled="enhanceInfo.maxed" @click="store.enhanceItem(selectedSlot as any)">
-                {{ t('common.enhance') }} {{ enhanceInfo.maxed ? '(MAX)' : `+${detailItem.enhance ?? 0} → +${(detailItem.enhance ?? 0) + 1}` }}
+                {{ t('common.enhance') }} {{ enhanceInfo.maxed ? '(MAX)' : `+${currentEnhance} → +${currentEnhance + 1}` }}
               </button>
               <div v-if="!enhanceInfo.maxed" class="flex justify-between text-11px text-white/50">
                 <span>{{ enhanceInfo.gold }}金 {{ enhanceInfo.stone }}石</span>
@@ -109,7 +179,11 @@
               <div v-if="upgradeInfo.can" class="text-center text-11px text-white/50">
                 {{ upgradeInfo.gold }}金 {{ upgradeInfo.soul }}结晶 · 需强化+5
               </div>
-              <button class="game-btn-ghost w-full" @click="store.unequipItem(selectedSlot as any)">{{ t('common.unequip') }}</button>
+              <div class="grid grid-cols-2 gap-2">
+                <button class="game-btn-ghost" @click="store.sellItem(detailItem.uid); clear()">{{ t('common.sell') }} +{{ sellPrice(detailItem) }}</button>
+                <button class="game-btn-ghost" @click="store.unequipItem(selectedSlot as any)">{{ t('common.unequip') }}</button>
+              </div>
+              <div class="text-center text-10px text-white/40">卖出后强化等级保留在栏位</div>
             </div>
           </template>
 
@@ -136,7 +210,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { BagItem, EquipSlot, Rarity } from '@/game/types'
 import { BAG_CAP } from '@/game/engine/loot'
 import { RARITY_META, RARITY_ORDER, UPGRADE_GOLD_COST, UPGRADE_SOUL_COST, enhanceCost, recycleGain, sellPrice } from '@/game/engine/stats'
@@ -155,15 +229,44 @@ const slots = [
   { key: 'armor' as const, icon: 'i-mdi-shield' },
   { key: 'accessory' as const, icon: 'i-mdi-diamond-outline' },
 ]
+const rarities = RARITY_ORDER
 
 const selectedUid = ref('')
 const selectedSlot = ref<EquipSlot | ''>('')
+
+// 自动处理配置的本地副本（用于双向绑定）
+const recycleMin = ref(pf.value!.autoRecycleCfg.minLevel)
+const recycleMax = ref(pf.value!.autoRecycleCfg.maxLevel)
+const sellMin = ref(pf.value!.autoSellCfg.minLevel)
+const sellMax = ref(pf.value!.autoSellCfg.maxLevel)
 
 function onSelect(uid: string) {
   selectedUid.value = uid
   selectedSlot.value = ''
 }
 function clear() {
+  selectedUid.value = ''
+}
+function onCfgChange(kind: 'recycle' | 'sell') {
+  const min = kind === 'recycle' ? recycleMin.value : sellMin.value
+  const max = kind === 'recycle' ? recycleMax.value : sellMax.value
+  store.updateAutoCfg(kind, { minLevel: Math.max(1, min), maxLevel: Math.max(min, max) })
+}
+function toggleRarity(kind: 'recycle' | 'sell', r: Rarity) {
+  const cfg = kind === 'recycle' ? pf.value!.autoRecycleCfg : pf.value!.autoSellCfg
+  const exists = cfg.rarities.includes(r)
+  const next = exists ? cfg.rarities.filter(x => x !== r) : [...cfg.rarities, r]
+  store.updateAutoCfg(kind, { rarities: next })
+}
+function rarityColor(r: Rarity) { return RARITY_META[r].color }
+function rarityLabel(r: Rarity) { return t(`rarity.${r}`) }
+
+function sellAllEquips() {
+  store.sellAllEquips()
+  selectedUid.value = ''
+}
+function recycleAllEquips() {
+  store.recycleAllEquips()
   selectedUid.value = ''
 }
 
@@ -191,13 +294,20 @@ const detailName = computed(() => detailItem.value ? itemName(detailItem.value) 
 const detailColor = computed(() => detailItem.value ? RARITY_META[detailItem.value.rarity ?? 'common'].color : '#fff')
 const detailSlot = computed(() => (detailItem.value ? itemSlot(detailItem.value) : '') as EquipSlot)
 const isEquipped = computed(() => !!selectedSlot.value && !!detailItem.value)
+const equippedInSameSlot = computed(() => {
+  if (!detailItem.value || detailItem.value.kind !== 'equip' || isEquipped.value)
+    return undefined
+  const slot = itemSlot(detailItem.value) as EquipSlot
+  return pf.value!.equipped[slot]
+})
 
+const currentEnhance = computed(() => pf.value!.slotEnhance[selectedSlot.value as EquipSlot] ?? 0)
 const enhanceInfo = computed(() => {
   const item = detailItem.value
   if (!item)
     return { gold: 0, stone: 0, rate: 0, maxed: false }
-  const e = item.enhance ?? 0
-  if (e >= 15)
+  const e = currentEnhance.value
+  if (e >= store.MAX_ENHANCE)
     return { gold: 0, stone: 0, rate: 0, maxed: true }
   return { ...enhanceCost(RARITY_ORDER.indexOf(item.rarity ?? 'common'), e), maxed: false }
 })
@@ -210,7 +320,7 @@ const upgradeInfo = computed(() => {
     return { can: false, gold: 0, soul: 0 }
   const idx = RARITY_ORDER.indexOf(item.rarity ?? 'common')
   return {
-    can: (item.enhance ?? 0) >= 5,
+    can: currentEnhance.value >= 5,
     gold: UPGRADE_GOLD_COST[idx],
     soul: UPGRADE_SOUL_COST[idx],
   }

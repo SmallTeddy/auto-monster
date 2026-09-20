@@ -77,7 +77,7 @@ const zhCN = {
     noBoons: '尚未获得祝福，击败首领后可选择',
   },
   confirm: {
-    autoConfirm: '10 秒后自动确认',
+    autoConfirm: '5 秒后自动确认',
     ok: '确定',
     cancel: '取消',
   },
@@ -167,6 +167,7 @@ const zhCN = {
     claim: '领取',
     claimed: '已领取',
     resetDaily: '每日刷新',
+    refresh: '刷新任务',
   },
 }
 
@@ -246,7 +247,7 @@ const enUS: MessageSchema = {
     noBoons: 'No boon yet — defeat a boss to choose one',
   },
   confirm: {
-    autoConfirm: 'Auto-confirm in 10s',
+    autoConfirm: 'Auto-confirm in 5s',
     ok: 'OK',
     cancel: 'Cancel',
   },
@@ -336,6 +337,7 @@ const enUS: MessageSchema = {
     claim: 'Claim',
     claimed: 'Claimed',
     resetDaily: 'Resets daily',
+    refresh: 'Refresh',
   },
 }
 
