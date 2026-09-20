@@ -19,20 +19,21 @@
 
     <!-- ===== 中间状态条 ===== -->
     <div class="flex h-9 shrink-0 items-center justify-between gap-1 border-y border-white/10 bg-[#0e141b] px-2 text-12px">
+      <!-- 左侧：层数 / 回合 -->
       <div class="flex min-w-0 items-center gap-1.5 overflow-hidden">
         <span class="game-chip shrink-0">
           <span v-if="run.mode === 'dungeon'">{{ store.dungeonDef(run.dungeonDefId).name }} {{ run.dungeonWave + 1 }}/{{ store.dungeonDef(run.dungeonDefId).waves }}</span>
           <span v-else>B{{ run.floor }}{{ isBossFloor ? ' BOSS' : '' }}</span>
         </span>
         <span class="game-chip shrink-0"><span class="i-mdi-swap-horizontal-circle-outline" />{{ t('battle.round') }} {{ run.round }}</span>
-      </div>
-
-      <div class="flex shrink-0 items-center gap-1 sm:gap-2">
         <span v-if="run.status === 'fighting' && !paused" class="hidden items-center gap-1.5 text-red-300 sm:flex">
           <span class="h-2 w-2 animate-pulse rounded-full bg-red-500" />{{ t('battle.autoFighting') }}
         </span>
         <span v-else-if="run.status === 'fighting'" class="text-amber-300">{{ t('battle.paused') }}</span>
+      </div>
 
+      <!-- 右侧：技能 + 倍速 + 暂停 + 药水（靠右对齐） -->
+      <div class="flex shrink-0 items-center gap-1 sm:gap-2">
         <!-- 主动技能 -->
         <button
           class="skill-btn"
@@ -46,10 +47,14 @@
           <span v-if="skillCd > 0" class="text-11px font-bold text-red-300">{{ skillCd }}</span>
         </button>
 
-        <!-- 倍速 -->
-        <button class="icon-mini" @click="cycleSpeed">
-          <span class="i-mdi-play-speed" />{{ speed }}x
-        </button>
+        <!-- 倍速（下拉选择） -->
+        <div class="speed-select-wrap">
+          <span class="i-mdi-play-speed text-14px" />
+          <select class="speed-select" :value="speed" @change="onSpeedChange">
+            <option v-for="s in SPEEDS" :key="s" :value="s">{{ s }}x</option>
+          </select>
+        </div>
+
         <button class="icon-mini" @click="paused = !paused">
           <span :class="paused ? 'i-mdi-play' : 'i-mdi-pause'" />
         </button>
@@ -226,10 +231,15 @@ const pf = store.profile
 const paused = ref(false)
 const speed = ref(1)
 
-const SPEEDS = [1, 2, 3]
+const SPEEDS = [1, 3, 5, 8, 10, 15]
 function cycleSpeed() {
   const idx = SPEEDS.indexOf(speed.value)
   speed.value = SPEEDS[(idx + 1) % SPEEDS.length]
+}
+function onSpeedChange(e: Event) {
+  const v = Number((e.target as HTMLSelectElement).value)
+  if (SPEEDS.includes(v))
+    speed.value = v
 }
 
 onMounted(() => {
@@ -244,9 +254,14 @@ onMounted(() => {
 // 自动战斗心跳（倍速控制间隔）
 const baseInterval = 900
 useIntervalFn(() => {
-  if (run.status === 'fighting' && !paused.value && !store.activePanel.value)
-    store.battleTick()
-}, () => Math.max(150, Math.round(baseInterval / speed.value)))
+  if (run.status !== 'fighting' || paused.value || store.activePanel.value)
+    return
+  // 技能就绪时自动释放
+  const hero = run.units.find(u => u.side === 'hero')
+  if (hero && (!hero.skillCd || hero.skillCd <= 0))
+    store.castSkill()
+  store.battleTick()
+}, () => Math.max(60, Math.round(baseInterval / speed.value)))
 
 // 魔塔普通层胜利后自动进入下一层
 watch(() => run.status, (s) => {
@@ -300,6 +315,33 @@ function openPanel(key: string) {
 }
 .icon-mini:hover {
   background: rgb(255 255 255 / 10%);
+  color: white;
+}
+
+/* 倍速下拉选择器 */
+.speed-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: 6px;
+  padding: 1px 4px 1px 6px;
+  background: rgb(255 255 255 / 6%);
+  color: rgb(255 255 255 / 70%);
+}
+.speed-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 2px;
+  cursor: pointer;
+}
+.speed-select option {
+  background: #161e29;
   color: white;
 }
 
