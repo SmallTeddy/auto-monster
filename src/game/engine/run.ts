@@ -76,15 +76,14 @@ export function genDungeonWave(def: DungeonDef, waveIndex: number): BattleUnit[]
   return units
 }
 
-/** Roguelike 祝福三选一 */
-export function genBoonOffer(owned: string[]): string[] {
-  const pool = BOONS.filter(b => !owned.includes(b.id))
-  const usable = pool.length >= 3 ? pool : BOONS
-  const ids = usable.map(b => b.id)
+/** Roguelike 祝福三选一（允许重复获得，叠加效果） */
+export function genBoonOffer(_owned: string[]): string[] {
+  const ids = BOONS.map(b => b.id)
   const result: string[] = []
-  while (result.length < 3 && ids.length) {
-    const idx = Math.floor(Math.random() * ids.length)
-    result.push(ids.splice(idx, 1)[0])
+  const pool = [...ids]
+  while (result.length < 3 && pool.length) {
+    const idx = Math.floor(Math.random() * pool.length)
+    result.push(pool.splice(idx, 1)[0])
   }
   return result
 }

@@ -57,9 +57,11 @@
             </button>
             <button class="game-btn-ghost px-2 py-1 text-12px" @click="store.sellPet(pet.uid)">
               <span class="i-mdi-cash-multiple" />
+              <span>{{ t('common.sell') }}</span>
             </button>
             <button class="game-btn-ghost px-2 py-1 text-12px" @click="store.recyclePet(pet.uid)">
               <span class="i-mdi-diamond-outline" />
+              <span>{{ t('common.recycle') }}</span>
             </button>
           </div>
         </div>

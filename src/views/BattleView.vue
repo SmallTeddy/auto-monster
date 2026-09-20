@@ -63,13 +63,6 @@
           <span class="text-10px text-sky-300">{{ potionCount }}</span>
         </button>
       </div>
-
-      <!-- 已获得祝福 -->
-      <div class="hidden max-w-40% items-center gap-1 overflow-hidden md:flex">
-        <span v-for="b in activeBoons" :key="b.id" class="flex items-center rounded bg-purple-500/15 px-1.5 py-0.5 text-10px text-purple-200" :title="b.desc">
-          <span :class="b.icon" class="mr-0.5" />{{ b.name }}
-        </span>
-      </div>
     </div>
 
     <!-- ===== 玩家区域 ===== -->
@@ -272,7 +265,6 @@ watch(() => run.status, (s) => {
 const enemies = computed(() => run.units.filter(u => u.side === 'enemy'))
 const allies = computed(() => run.units.filter(u => u.side !== 'enemy'))
 const isBossFloor = computed(() => run.floor % 5 === 0)
-const activeBoons = computed(() => run.mode === 'tower' ? pf.value!.boons.map(id => getBoon(id)) : [])
 const potionCount = computed(() => {
   const item = pf.value!.bag.find(b => b.kind === 'consumable')
   return item ? item.count : 0

@@ -8,19 +8,20 @@ import { chance, pick, randInt, uid, weighted } from './rng'
 export function enemyStats(level: number, boss: boolean, rarityMul = 1): Stats {
   const lv = Math.max(1, level)
   const s: Stats = {
-    hp: Math.round(40 * lv ** 1.24),
-    atk: Math.round(6 + lv * 2.05),
-    def: Math.round(lv * 0.85),
-    spd: Math.round((7 + lv * 0.22) * 10) / 10,
+    hp: Math.round(70 * lv ** 1.3),
+    atk: Math.round(10 + lv * 3.2),
+    def: Math.round(lv * 1.25),
+    spd: Math.round((7 + lv * 0.25) * 10) / 10,
   }
   const v = 0.9 + Math.random() * 0.2
   s.hp = Math.round(s.hp * v * rarityMul)
   s.atk = Math.round(s.atk * v * rarityMul)
   s.def = Math.round(s.def * v * rarityMul)
   if (boss) {
-    s.hp = Math.round(s.hp * 2.8)
-    s.atk = Math.round(s.atk * 1.35)
-    s.def = Math.round(s.def * 1.3)
+    s.hp = Math.round(s.hp * 5)
+    s.atk = Math.round(s.atk * 2.2)
+    s.def = Math.round(s.def * 2.1)
+    s.spd = Math.round(s.spd * 1.2 * 10) / 10
   }
   return s
 }
