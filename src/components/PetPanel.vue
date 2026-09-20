@@ -45,21 +45,21 @@
           </div>
 
           <!-- 操作 -->
-          <div class="mt-2 flex items-center gap-1.5">
-            <button v-if="!pet.deployed" class="game-btn flex-1 py-1 text-12px" @click="store.deployPet(pet.uid)">{{ t('common.deploy') }}</button>
-            <button v-else class="game-btn-ghost flex-1 py-1 text-12px" @click="store.withdrawPet(pet.uid)">{{ t('common.withdraw') }}</button>
+          <div class="mt-2 grid grid-cols-2 gap-1.5">
+            <button v-if="!pet.deployed" class="game-btn py-1 text-12px" @click="store.deployPet(pet.uid)">{{ t('common.deploy') }}</button>
+            <button v-else class="game-btn-ghost py-1 text-12px" @click="store.withdrawPet(pet.uid)">{{ t('common.withdraw') }}</button>
             <button
-              class="game-btn-purple px-2 py-1 text-12px"
+              class="game-btn-purple py-1 text-12px"
               :disabled="pet.train >= 10"
               @click="store.trainPet(pet.uid)"
             >
               {{ pet.train >= 10 ? t('pet.trainMax') : t('common.train') }} {{ trainCost(pet) }}
             </button>
-            <button class="game-btn-ghost px-2 py-1 text-12px" @click="store.sellPet(pet.uid)">
+            <button class="game-btn-ghost py-1 text-12px" @click="store.sellPet(pet.uid)">
               <span class="i-mdi-cash-multiple" />
               <span>{{ t('common.sell') }}</span>
             </button>
-            <button class="game-btn-ghost px-2 py-1 text-12px" @click="store.recyclePet(pet.uid)">
+            <button class="game-btn-ghost py-1 text-12px" @click="store.recyclePet(pet.uid)">
               <span class="i-mdi-diamond-outline" />
               <span>{{ t('common.recycle') }}</span>
             </button>

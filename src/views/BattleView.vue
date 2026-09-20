@@ -26,14 +26,16 @@
           <span v-else>B{{ run.floor }}{{ isBossFloor ? ' BOSS' : '' }}</span>
         </span>
         <span class="game-chip shrink-0"><span class="i-mdi-swap-horizontal-circle-outline" />{{ t('battle.round') }} {{ run.round }}</span>
-        <span v-if="run.status === 'fighting' && !paused" class="hidden items-center gap-1.5 text-red-300 sm:flex">
-          <span class="h-2 w-2 animate-pulse rounded-full bg-red-500" />{{ t('battle.autoFighting') }}
-        </span>
-        <span v-else-if="run.status === 'fighting'" class="text-amber-300">{{ t('battle.paused') }}</span>
       </div>
 
-      <!-- 右侧：技能 + 倍速 + 暂停 + 药水（靠右对齐） -->
+      <!-- 右侧：自动战斗状态 + 技能 + 倍速 + 暂停 + 药水（固定靠右，避免抖动） -->
       <div class="flex shrink-0 items-center gap-1 sm:gap-2">
+        <!-- 自动战斗状态 -->
+        <span v-if="run.status === 'fighting' && !paused" class="hidden items-center gap-1.5 text-red-300 sm:flex">
+          <span class="h-2 w-2 shrink-0 animate-pulse rounded-full bg-red-500" />{{ t('battle.autoFighting') }}
+        </span>
+        <span v-else-if="run.status === 'fighting'" class="text-amber-300">{{ t('battle.paused') }}</span>
+
         <!-- 主动技能 -->
         <button
           class="skill-btn"
@@ -44,7 +46,7 @@
         >
           <span :class="activeSkill.icon" class="text-16px" />
           <span class="hidden text-11px font-semibold sm:inline">{{ activeSkill.name }}</span>
-          <span v-if="skillCd > 0" class="text-11px font-bold text-red-300">{{ skillCd }}</span>
+          <span class="inline-block w-3 text-center text-11px font-bold text-red-300">{{ skillCd > 0 ? skillCd : '' }}</span>
         </button>
 
         <!-- 倍速（下拉选择） -->
@@ -125,7 +127,11 @@
     <Teleport to="body">
       <div v-if="run.status === 'boon'" class="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-black/80 p-6">
         <h2 class="mb-1 text-24px font-black text-white">{{ t('battle.boonTitle') }}</h2>
-        <p class="mb-6 text-13px text-white/50">{{ t('battle.boonSubtitle') }}</p>
+        <p class="mb-4 text-13px text-white/50">{{ t('battle.boonSubtitle') }}</p>
+        <div class="mb-6 flex items-center gap-2 text-13px text-amber-300">
+          <span class="i-mdi-timer-sand" />
+          <span>{{ boonCountdown }} 秒后自动随机选择</span>
+        </div>
         <div class="grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
           <button
             v-for="id in run.boonOffer"
@@ -200,7 +206,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useIntervalFn } from '@vueuse/core'
 import { useGlobalState } from '@/store'
@@ -261,6 +267,34 @@ watch(() => run.status, (s) => {
   if (s === 'waveClear' && run.mode === 'tower')
     setTimeout(() => store.nextTowerFloor(), 1100)
 })
+
+// 祝福选择 5 秒倒计时，到 0 自动随机选一个
+const boonCountdown = ref(5)
+let boonTimer: ReturnType<typeof setInterval> | null = null
+function clearBoonTimer() {
+  if (boonTimer) {
+    clearInterval(boonTimer)
+    boonTimer = null
+  }
+}
+watch(() => run.status, (s) => {
+  clearBoonTimer()
+  if (s === 'boon') {
+    boonCountdown.value = 5
+    boonTimer = setInterval(() => {
+      boonCountdown.value -= 1
+      if (boonCountdown.value <= 0) {
+        clearBoonTimer()
+        const offer = run.boonOffer
+        if (offer.length) {
+          const pick = offer[Math.floor(Math.random() * offer.length)]
+          store.chooseBoon(pick)
+        }
+      }
+    }, 1000)
+  }
+})
+onUnmounted(clearBoonTimer)
 
 const enemies = computed(() => run.units.filter(u => u.side === 'enemy'))
 const allies = computed(() => run.units.filter(u => u.side !== 'enemy'))

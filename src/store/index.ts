@@ -870,7 +870,7 @@ export const useGlobalState = createGlobalState(() => {
     run.goldGained = 0
     run.logs = []
     run.boonOffer = []
-    p().boons = []
+    // 祝福（boons）与等级、宠物一样属于永久成长，跨次冒险保留
     loadTowerWave()
     pushLog('冒险开始！无尽魔塔第 1 层', 'sys')
   }
