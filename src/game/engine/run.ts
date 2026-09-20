@@ -20,7 +20,7 @@ export function genTowerWave(floor: number): BattleUnit[] {
     units.push(createEnemyUnit(floor + 1, sp, true))
   }
   else {
-    const count = Math.min(3, 1 + Math.floor(floor / 5))
+    const count = Math.min(8, 1 + Math.floor(floor / 5))
     const pool = mobPool(tMin, tMax)
     const chosen = new Set<string>()
     for (let i = 0; i < count; i++) {

@@ -705,8 +705,8 @@ export const useGlobalState = createGlobalState(() => {
   function deployPet(petUid: string) {
     const pf = p()
     const count = pf.pets.filter(x => x.deployed).length
-    if (count >= 3) {
-      toast(i18n.global.t('pet.deployLimit', { n: 3 }), 'error')
+    if (count >= 7) {
+      toast(i18n.global.t('pet.deployLimit', { n: 7 }), 'error')
       return
     }
     const pet = pf.pets.find(x => x.uid === petUid)

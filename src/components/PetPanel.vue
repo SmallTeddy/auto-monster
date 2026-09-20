@@ -2,7 +2,7 @@
   <ModalPanel :title="t('pet.title')" icon="i-mdi-paw" @close="$emit('close')">
     <template #extra>
       <span class="text-12px text-white/50">
-        {{ t('pet.deployed') }} {{ deployedCount }}/3 · {{ t('pet.deployLimit', { n: 3 }) }}
+        {{ t('pet.deployed') }} {{ deployedCount }}/7 · {{ t('pet.deployLimit', { n: 7 }) }}
       </span>
     </template>
 
