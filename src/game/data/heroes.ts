@@ -67,7 +67,7 @@ export const HEROES: HeroDef[] = [
       id: 'blood_feast',
       name: '血色盛宴',
       desc: '对单体造成 260% 伤害并吸取 50% 伤害生命',
-      icon: 'i-mdi-water-blood',
+      icon: 'i-mdi-blood-bag',
       cd: 4,
       type: 'lifesteal',
       power: 2.6,

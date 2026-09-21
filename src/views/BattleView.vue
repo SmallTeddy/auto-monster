@@ -83,9 +83,12 @@
         <!-- 倍速（下拉选择） -->
         <div class="speed-select-wrap">
           <span class="i-mdi-play-speed text-14px" />
-          <select class="speed-select" :value="speed" @change="onSpeedChange">
-            <option v-for="s in SPEEDS" :key="s" :value="s">{{ s }}x</option>
-          </select>
+          <GameSelect
+            v-model="speed"
+            :options="speedOptions"
+            aria-label="战斗速度"
+            placement="top"
+          />
         </div>
 
         <button class="icon-mini" @click="paused = !paused">
@@ -219,6 +222,7 @@ import PetPanel from '@/components/PetPanel.vue'
 import DungeonPanel from '@/components/DungeonPanel.vue'
 import QuestPanel from '@/components/QuestPanel.vue'
 import ZoneTag from '@/components/ZoneTag.vue'
+import GameSelect from '@/components/GameSelect.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -230,15 +234,7 @@ const paused = ref(false)
 const speed = ref(1)
 
 const SPEEDS = [1, 3, 5, 8, 10, 15]
-function cycleSpeed() {
-  const idx = SPEEDS.indexOf(speed.value)
-  speed.value = SPEEDS[(idx + 1) % SPEEDS.length]
-}
-function onSpeedChange(e: Event) {
-  const v = Number((e.target as HTMLSelectElement).value)
-  if (SPEEDS.includes(v))
-    speed.value = v
-}
+const speedOptions = SPEEDS.map(value => ({ label: `${value}x`, value }))
 
 onMounted(() => {
   if (!store.hasSave.value) {
@@ -345,7 +341,7 @@ function openPanel(key: string) {
 }
 .icon-mini:active { transform: translateY(1px) scale(.96); }
 
-/* 倍速下拉选择器 */
+/* 倍速选择器 */
 .speed-select-wrap {
   display: flex;
   align-items: center;
@@ -354,22 +350,6 @@ function openPanel(key: string) {
   padding: 1px 4px 1px 6px;
   background: rgb(255 255 255 / 6%);
   color: rgb(255 255 255 / 70%);
-}
-.speed-select {
-  appearance: none;
-  -webkit-appearance: none;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: white;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 2px;
-  cursor: pointer;
-}
-.speed-select option {
-  background: #161e29;
-  color: white;
 }
 
 /* 主动技能按钮 */

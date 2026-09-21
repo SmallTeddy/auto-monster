@@ -1,7 +1,7 @@
 <template>
   <div
-    class="relative flex flex-col items-center transition-opacity duration-300"
-    :class="unit.boss ? 'scale-[1.15]' : ''"
+    class="battle-unit relative flex w-full min-w-0 flex-col items-center transition-opacity duration-300"
+    :class="unit.boss ? 'battle-unit--boss' : ''"
   >
     <div
       class="relative flex flex-col items-center"
@@ -31,8 +31,8 @@
         <Sprite :src="unit.sprite" :size="spriteSize" />
       </div>
 
-      <div class="mt-1.5 w-64px text-center sm:w-86px">
-        <div class="truncate text-12px font-semibold" :class="unit.side === 'enemy' ? 'text-red-200' : 'text-green-200'">
+      <div class="battle-unit__meta mt-1.5 w-64px max-w-full text-center sm:w-86px">
+        <div class="battle-unit__name truncate text-12px font-semibold" :class="unit.side === 'enemy' ? 'text-red-200' : 'text-green-200'">
           {{ unit.name }}
           <span class="text-white/40">Lv{{ unit.level }}</span>
         </div>

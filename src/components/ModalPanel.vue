@@ -8,12 +8,14 @@
         class="panel-in modal-panel flex max-h-[calc(100dvh-1rem)] w-full flex-col overflow-hidden rounded-[var(--game-radius)] border border-white/10 bg-[#111a24] shadow-2xl sm:max-h-[calc(100dvh-2rem)]"
         :class="widthClass"
       >
-        <header class="safe-top flex min-h-13 items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5">
-          <h2 class="flex min-w-0 items-center gap-2 truncate text-16px font-bold text-white">
-            <span v-if="icon" :class="icon" class="text-primary text-18px" />
-            {{ title }}
-            <slot name="extra" />
+        <header class="safe-top flex h-16 items-center gap-3 border-b border-white/10 px-4 sm:px-5">
+          <h2 class="flex min-w-0 flex-1 items-center gap-2 truncate text-16px font-bold leading-6 text-white">
+            <span v-if="icon" :class="icon" class="shrink-0 text-primary text-18px" />
+            <span class="truncate">{{ title }}</span>
           </h2>
+          <div v-if="$slots.extra" class="flex shrink-0 items-center overflow-visible">
+            <slot name="extra" />
+          </div>
           <button
             class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white/60 transition hover:bg-white/10 hover:text-white"
             @click="$emit('close')"

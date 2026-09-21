@@ -2,17 +2,20 @@
   <ModalPanel :title="t('shop.title')" icon="i-mdi-store-outline" @close="$emit('close')">
     <template #extra>
       <div class="flex items-center gap-2">
+        <button
+          class="game-btn-ghost"
+          :class="{ invisible: tab !== 'buy', 'pointer-events-none': tab !== 'buy' }"
+          :disabled="tab !== 'buy'"
+          title="刷新商店"
+          aria-label="刷新商店"
+          @click="store.refreshShop()"
+        >
+          <span class="i-mdi-refresh mr-1" />{{ t('shop.refreshCost', { cost: refreshCost }) }}
+        </button>
         <div class="flex rounded-lg bg-black/40 p-0.5 text-12px">
           <button class="rounded-md px-3 py-1" :class="tab === 'buy' ? 'bg-primary text-black font-semibold' : 'text-white/60'" @click="tab = 'buy'">{{ t('shop.buyTab') }}</button>
           <button class="rounded-md px-3 py-1" :class="tab === 'sell' ? 'bg-primary text-black font-semibold' : 'text-white/60'" @click="tab = 'sell'">{{ t('shop.sellTab') }}</button>
         </div>
-        <button
-          v-if="tab === 'buy'"
-          class="game-btn-ghost"
-          @click="store.refreshShop()"
-        >
-          <span class="i-mdi-refresh mr-1" />{{ refreshCost }}
-        </button>
       </div>
     </template>
 

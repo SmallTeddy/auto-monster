@@ -15,6 +15,26 @@ import {
 } from "unocss";
 
 export default defineConfig({
+    safelist: [
+        'i-carbon-logo-github',
+        'i-carbon-translate',
+        'i-gridicons:fullscreen',
+        'i-gridicons:fullscreen-exit',
+        'i-material-symbols:pause-circle',
+        'i-material-symbols:play-circle-rounded',
+        'i-mdi-clover',
+        'i-mdi-crosshairs-gps',
+        'i-mdi-flash-outline',
+        'i-mdi-flask-round-bottom-outline',
+        'i-mdi-heart-outline',
+        'i-mdi-heart-plus-outline',
+        'i-mdi-hospital-box-outline',
+        'i-mdi-shield-crown-outline',
+        'i-mdi-skull-outline',
+        'i-mdi-blood-bag',
+        'i-mdi-water-plus-outline',
+        'i-mdi-weather-windy',
+    ],
     //  自定义配置
     shortcuts: {
         "border-base": "border-gray-400",
