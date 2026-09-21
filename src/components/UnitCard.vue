@@ -18,7 +18,7 @@
       </div>
 
       <div
-        class="relative rounded-xl p-2"
+        class="unit-frame relative p-2"
         :class="[
           unit.side === 'enemy' ? 'bg-red-500/10 ring-1 ring-red-400/30' : 'bg-primary/10 ring-1 ring-primary/30',
           shaking ? 'is-hit' : '',

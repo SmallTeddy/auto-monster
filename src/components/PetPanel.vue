@@ -2,11 +2,11 @@
   <ModalPanel :title="t('pet.title')" icon="i-mdi-paw" @close="$emit('close')">
     <template #extra>
       <span class="text-12px text-white/50">
-        {{ t('pet.deployed') }} {{ deployedCount }}/7 · {{ t('pet.deployLimit', { n: 7 }) }}
+        {{ t('pet.deployed') }} {{ deployedCount }}/7 <span class="text-white/30">/</span> {{ t('pet.deployLimit', { n: 7 }) }}
       </span>
     </template>
 
-    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+    <div class="grid grid-cols-1 gap-3">
       <div
         v-for="pet in pf.pets"
         :key="pet.uid"

@@ -189,6 +189,7 @@ const enUS: MessageSchema = {
     confirm: 'OK',
     cancel: 'Cancel',
     close: 'Close',
+    ok: 'OK',
     buy: 'Buy',
     sell: 'Sell',
     recycle: 'Salvage',

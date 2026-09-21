@@ -1,27 +1,27 @@
 <template>
   <Teleport to="body">
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4"
+      class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-2 backdrop-blur-[2px] sm:p-4"
       @click.self="$emit('close')"
     >
       <div
-        class="panel-in flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#121821] shadow-2xl sm:max-h-[88vh]"
+        class="panel-in modal-panel flex max-h-[calc(100dvh-1rem)] w-full flex-col overflow-hidden rounded-[var(--game-radius)] border border-white/10 bg-[#111a24] shadow-2xl sm:max-h-[calc(100dvh-2rem)]"
         :class="widthClass"
       >
-        <header class="flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-5">
-          <h2 class="flex items-center gap-2 text-16px font-bold text-white">
+        <header class="safe-top flex min-h-13 items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5">
+          <h2 class="flex min-w-0 items-center gap-2 truncate text-16px font-bold text-white">
             <span v-if="icon" :class="icon" class="text-primary text-18px" />
             {{ title }}
             <slot name="extra" />
           </h2>
           <button
-            class="flex h-7 w-7 items-center justify-center rounded-lg text-white/60 hover:bg-white/10 hover:text-white"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white/60 transition hover:bg-white/10 hover:text-white"
             @click="$emit('close')"
           >
             <span class="i-mdi-close text-18px" />
           </button>
         </header>
-        <div class="panel-scroll flex-1 overflow-y-auto p-4 sm:p-5">
+        <div class="panel-scroll flex-1 overflow-y-auto p-3 sm:p-5">
           <slot />
         </div>
         <footer v-if="$slots.footer" class="border-t border-white/10 px-4 py-3 sm:px-5">

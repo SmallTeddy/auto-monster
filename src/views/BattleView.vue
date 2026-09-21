@@ -1,24 +1,55 @@
 <template>
-  <div v-if="pf" class="flex h-full flex-col bg-[#0b0f14]">
+  <div v-if="pf" class="battle-shell flex h-full min-h-0 flex-col bg-[#090e14]">
     <TopBar />
 
-    <!-- ===== 电脑区域（敌人） ===== -->
-    <section class="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-gradient-to-b from-[#1c1216] to-[#121216]">
+    <div class="battle-layout min-h-0 flex-1">
+    <!-- ===== 敌方状态栏 ===== -->
+    <aside class="battle-side battle-side--enemy">
       <ZoneTag :text="t('battle.enemyArea')" color="red" />
       <div class="pointer-events-none absolute inset-0 opacity-[0.07]" style="background-image: radial-gradient(circle at 20% 30%, #ef4444 0, transparent 40%), radial-gradient(circle at 80% 60%, #ef4444 0, transparent 35%)" />
 
-      <div class="relative z-1 flex items-end justify-center gap-3 sm:gap-6">
-        <UnitCard
-          v-for="u in enemies"
-          :key="u.id"
-          :unit="u"
-          :floats="run.floats"
-        />
+      <div class="battle-side__summary relative z-1">
+        <div class="battle-side__count">{{ enemies.length }}</div>
+        <div class="battle-side__label">ENEMIES</div>
+        <div v-for="u in enemies" :key="`enemy-status-${u.id}`" class="battle-side__unit-name">
+          {{ u.name }} <span>Lv{{ u.level }}</span>
+        </div>
       </div>
-    </section>
+    </aside>
+
+    <main class="battle-arena">
+      <div class="battle-arena__caption">AUTO COMBAT <span>/</span> {{ run.mode === 'dungeon' ? store.dungeonDef(run.dungeonDefId).name : `B${run.floor}` }}</div>
+      <div class="battle-arena__enemy relative z-1 flex max-w-full items-end justify-center gap-2 px-2 sm:gap-4">
+        <UnitCard v-for="u in enemies" :key="`arena-${u.id}`" :unit="u" :floats="run.floats" />
+      </div>
+      <div class="battle-arena__divider"><span>VS</span></div>
+      <div class="battle-arena__allies relative z-1 flex max-w-full items-end justify-center gap-2 px-2 sm:gap-4">
+        <UnitCard v-for="u in allies" :key="`arena-${u.id}`" :unit="u" :floats="run.floats" />
+      </div>
+    </main>
+
+    <aside class="battle-side battle-side--log">
+      <div class="battle-side__title">COMBAT LOG</div>
+      <div class="log-scroll h-full w-full overflow-y-auto p-2 text-10px leading-4">
+        <div
+          v-for="line in [...run.logs].reverse()"
+          :key="`side-${line.id}`"
+          class="mb-0.5"
+          :class="{
+            'text-red-300': line.type === 'hit',
+            'text-yellow-300 font-bold': line.type === 'crit',
+            'text-red-400 font-bold': line.type === 'kill',
+            'text-primary': line.type === 'reward',
+            'text-green-300': line.type === 'heal',
+            'text-white/60': line.type === 'sys',
+          }"
+        >{{ line.text }}</div>
+      </div>
+    </aside>
+    </div>
 
     <!-- ===== 中间状态条 ===== -->
-    <div class="flex h-9 shrink-0 items-center justify-between gap-1 border-y border-white/10 bg-[#0e141b] px-2 text-12px">
+    <div class="battle-toolbar flex min-h-10 shrink-0 items-center justify-between gap-1 border-y border-white/10 bg-[#0e141b] px-2 text-12px shadow-[0_0_18px_rgb(0_0_0/0.2)]">
       <!-- 左侧：层数 / 回合 -->
       <div class="flex min-w-0 items-center gap-1.5 overflow-hidden">
         <span class="game-chip shrink-0">
@@ -29,7 +60,7 @@
       </div>
 
       <!-- 右侧：自动战斗状态 + 技能 + 倍速 + 暂停 + 药水（固定靠右，避免抖动） -->
-      <div class="flex shrink-0 items-center gap-1 sm:gap-2">
+      <div class="flex shrink-0 items-center gap-0.5 sm:gap-2">
         <!-- 自动战斗状态 -->
         <span v-if="run.status === 'fighting' && !paused" class="hidden items-center gap-1.5 text-red-300 sm:flex">
           <span class="h-2 w-2 shrink-0 animate-pulse rounded-full bg-red-500" />{{ t('battle.autoFighting') }}
@@ -67,40 +98,8 @@
       </div>
     </div>
 
-    <!-- ===== 玩家区域 ===== -->
-    <section class="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-gradient-to-t from-[#0e1a18] to-[#121216]">
-      <ZoneTag :text="t('battle.playerArea')" color="green" />
-      <div class="pointer-events-none absolute inset-0 opacity-[0.07]" style="background-image: radial-gradient(circle at 25% 70%, #00dc82 0, transparent 40%), radial-gradient(circle at 75% 30%, #00dc82 0, transparent 35%)" />
-
-      <div class="relative z-1 flex items-end justify-center gap-3 sm:gap-6">
-        <UnitCard
-          v-for="u in allies"
-          :key="u.id"
-          :unit="u"
-          :floats="run.floats"
-        />
-      </div>
-
-      <!-- 战斗日志 -->
-      <div class="log-scroll absolute bottom-2 right-2 z-2 h-24 w-36 overflow-y-auto rounded-lg border border-white/10 bg-black/55 p-1.5 text-10px leading-4 sm:right-3 sm:h-32 sm:w-60 sm:p-2">
-        <div
-          v-for="line in [...run.logs].reverse()"
-          :key="line.id"
-          class="mb-0.5"
-          :class="{
-            'text-red-300': line.type === 'hit',
-            'text-yellow-300 font-bold': line.type === 'crit',
-            'text-red-400 font-bold': line.type === 'kill',
-            'text-primary': line.type === 'reward',
-            'text-green-300': line.type === 'heal',
-            'text-white/60': line.type === 'sys',
-          }"
-        >{{ line.text }}</div>
-      </div>
-    </section>
-
     <!-- ===== 底部功能导航 ===== -->
-    <nav class="safe-bottom flex h-14 shrink-0 items-stretch justify-around border-t border-white/10 bg-[#0e141b]">
+    <nav class="safe-bottom flex min-h-14 shrink-0 items-stretch justify-around border-t border-white/10 bg-[#0e141b] shadow-[0_-8px_22px_rgb(0_0_0/0.2)]">
       <button
         v-for="n in navs"
         :key="n.key"
@@ -187,7 +186,7 @@
           </div>
           <div class="mb-4 text-13px text-white/55">
             <template v-if="run.status === 'runOver'">
-              {{ t('battle.reachedFloor') }}：{{ run.floor }} · {{ t('common.gold') }} +{{ run.goldGained }}
+              {{ t('battle.reachedFloor') }}：{{ run.floor }} <span class="text-white/35">/</span> {{ t('common.gold') }} +{{ run.goldGained }}
             </template>
             <template v-else>{{ store.dungeonDef(run.dungeonDefId).name }}</template>
           </div>
@@ -195,7 +194,7 @@
             <button v-if="run.status === 'runOver'" class="game-btn w-full py-2" @click="store.startRun()">
               <span class="i-mdi-restart mr-1" />{{ t('battle.restartRun') }}
             </button>
-            <button class="game-btn-ghost w-full py-2" @click="run.status === 'dungeonLost' ? store.exitToTower() : goHome">
+            <button class="game-btn-ghost w-full py-2" @click="run.status === 'dungeonLost' ? store.exitToTower() : goHome()">
               {{ run.status === 'dungeonLost' ? t('common.back') : t('common.back') }}
             </button>
           </div>
@@ -338,11 +337,13 @@ function openPanel(key: string) {
   border-radius: 6px;
   padding: 2px 6px;
   color: rgb(255 255 255 / 65%);
+  transition: transform 160ms ease, background-color 160ms ease, color 160ms ease;
 }
 .icon-mini:hover {
   background: rgb(255 255 255 / 10%);
   color: white;
 }
+.icon-mini:active { transform: translateY(1px) scale(.96); }
 
 /* 倍速下拉选择器 */
 .speed-select-wrap {
@@ -379,7 +380,8 @@ function openPanel(key: string) {
   border-radius: 6px;
   padding: 2px 7px;
   border: 1px solid transparent;
-  transition: all 0.18s ease;
+  transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+  will-change: transform;
 }
 .skill-btn.skill-ready {
   border-color: #fbbf24;
@@ -398,5 +400,12 @@ function openPanel(key: string) {
 }
 .skill-btn:disabled {
   opacity: 0.55;
+}
+
+@media (max-width: 420px) {
+  .battle-toolbar { font-size: 11px; }
+  .speed-select-wrap { padding-inline: 3px; }
+  .skill-btn { padding-inline: 5px; }
+  .skill-btn .text-11px { display: none; }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <img
-    class="pixel pointer-events-none"
+    class="pixel sprite-fit pointer-events-none"
     :src="src"
     :alt="alt"
     :style="{ width: typeof size === 'number' ? `${size}px` : size, height: typeof size === 'number' ? `${size}px` : size }"

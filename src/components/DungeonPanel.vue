@@ -4,7 +4,7 @@
       <span class="game-chip"><span class="i-mdi-lightning-bolt text-green-400" />{{ Math.floor(pf.stamina) }}/{{ store.STAMINA_MAX }}</span>
     </template>
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="grid grid-cols-1 gap-4">
       <div
         v-for="d in DUNGEONS"
         :key="d.id"
@@ -16,7 +16,7 @@
           </div>
           <div class="min-w-0">
             <div class="text-15px font-bold text-white">{{ d.name }}</div>
-            <div class="text-11px text-white/45">{{ t('dungeon.recommended', { lv: d.needLevel }) }} · {{ d.waves }} {{ t('dungeon.waves') }}</div>
+            <div class="text-11px text-white/45">{{ t('dungeon.recommended', { lv: d.needLevel }) }} <span class="text-white/30">/</span> {{ d.waves }} {{ t('dungeon.waves') }}</div>
             <div v-if="pf.dungeonCount[d.id]" class="text-10px text-primary">{{ t('dungeon.clearCount', { n: pf.dungeonCount[d.id] }) }}</div>
           </div>
         </div>
@@ -40,7 +40,7 @@
               @click="store.enterDungeon(d.id)"
             >
               <span class="i-mdi-sword-cross mr-1" />
-              {{ pf.level < d.needLevel ? `${t('common.locked')} · ${t('dungeon.recommended', { lv: d.needLevel })}` : `${t('dungeon.enter')} (${t('dungeon.cost', { n: d.cost })})` }}
+              {{ pf.level < d.needLevel ? `${t('common.locked')} / ${t('dungeon.recommended', { lv: d.needLevel })}` : `${t('dungeon.enter')} (${t('dungeon.cost', { n: d.cost })})` }}
             </button>
             <button
               v-if="pf.dungeonCount[d.id]"

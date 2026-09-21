@@ -108,7 +108,7 @@
       </div>
     </div>
 
-    <div class="flex flex-col gap-4 sm:flex-row">
+    <div class="flex flex-col gap-4">
       <!-- 背包格子 -->
       <div class="min-w-0 flex-1">
         <div v-if="!pf.bag.length" class="flex h-40 items-center justify-center rounded-xl border border-dashed border-white/15 text-13px text-white/35">
@@ -126,7 +126,7 @@
       </div>
 
       <!-- 详情 / 操作 -->
-      <div class="w-full shrink-0 rounded-xl border border-white/10 bg-black/30 p-4 sm:w-64">
+      <div class="w-full shrink-0 rounded-xl border border-white/10 bg-black/30 p-4">
         <template v-if="detailItem">
           <div class="mb-1 flex items-center gap-2">
             <span :class="detailIcon" class="text-22px" :style="{ color: detailColor }" />
@@ -134,7 +134,7 @@
             <span v-if="detailItem.kind === 'equip'" class="ml-auto text-12px text-cyan-300">+{{ detailItem.enhance ?? 0 }}</span>
           </div>
           <div v-if="detailItem.kind === 'equip'" class="mb-1 text-11px text-white/45">
-            {{ t(`slot.${detailSlot}`) }} · Lv{{ detailItem.itemLevel }} · {{ t(`rarity.${detailItem.rarity}`) }}
+            {{ t(`slot.${detailSlot}`) }} / Lv{{ detailItem.itemLevel }} / {{ t(`rarity.${detailItem.rarity}`) }}
           </div>
           <div class="mb-3 text-12px leading-5 text-green-300/90">{{ itemDesc(detailItem) }}</div>
 
@@ -177,7 +177,7 @@
                 <span :style="{ color: nextColor }">{{ t(`rarity.${detailItem.rarity}`) }} → {{ nextRarity ? t(`rarity.${nextRarity}`) : 'MAX' }}</span>
               </button>
               <div v-if="upgradeInfo.can" class="text-center text-11px text-white/50">
-                {{ upgradeInfo.gold }}金 {{ upgradeInfo.soul }}结晶 · 需强化+5
+                {{ upgradeInfo.gold }}金 {{ upgradeInfo.soul }}结晶 / 需强化+5
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <button class="game-btn-ghost" @click="store.sellItem(detailItem.uid); clear()">{{ t('common.sell') }} +{{ sellPrice(detailItem) }}</button>

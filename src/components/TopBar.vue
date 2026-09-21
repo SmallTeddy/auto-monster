@@ -1,8 +1,8 @@
 <template>
-  <header class="safe-top flex h-11 shrink-0 items-center justify-between gap-1 border-b border-white/10 bg-[#0e141b] px-2 sm:px-3">
+  <header class="safe-top flex min-h-11 shrink-0 items-center justify-between gap-1 border-b border-white/10 bg-[#0e141b]/95 px-2 shadow-[0_8px_24px_rgb(0_0_0/0.16)] backdrop-blur-md sm:px-3">
     <div class="flex shrink-0 items-center gap-2">
       <button
-        class="flex items-center gap-2 rounded-lg px-1 py-0.5 transition hover:bg-white/10"
+        class="flex min-h-8 items-center gap-2 rounded-lg px-1 py-0.5 transition hover:bg-white/10"
         :title="t('hero.infoTitle')"
         @click="showHeroInfo = true"
       >
@@ -13,7 +13,7 @@
 
     <div class="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto no-scrollbar sm:gap-2">
       <!-- 等级 -->
-      <div class="flex shrink-0 items-center gap-1.5 rounded-lg bg-white/5 px-1.5 py-1 sm:px-2" title="Lv">
+      <div class="game-chip flex shrink-0 items-center gap-1.5 px-1.5 py-1 sm:px-2" title="Lv">
         <span class="i-mdi-shield-account-outline text-primary" />
         <span class="text-11px font-semibold sm:text-12px">{{ t('common.level') }}{{ pf.level }}</span>
         <div class="hidden h-1.5 w-14 overflow-hidden rounded-full bg-black/50 sm:block">
@@ -21,27 +21,27 @@
         </div>
       </div>
       <!-- 层数 -->
-      <div v-if="run.started" class="flex shrink-0 items-center gap-1 rounded-lg bg-white/5 px-1.5 py-1 sm:px-2">
+      <div v-if="run.started" class="game-chip flex shrink-0 items-center gap-1 px-1.5 py-1 sm:px-2">
         <span class="i-mdi-tower-fire text-orange-400" />
         <span class="text-11px sm:text-12px">{{ run.mode === 'dungeon' ? dungeonName : `${t('common.floor')}${run.floor}` }}</span>
       </div>
       <!-- 金币 -->
-      <div class="flex shrink-0 items-center gap-1 rounded-lg bg-white/5 px-1.5 py-1 sm:px-2">
+      <div class="game-chip flex shrink-0 items-center gap-1 px-1.5 py-1 sm:px-2">
         <span class="i-mdi-cash-multiple text-yellow-400" />
         <span class="text-11px font-semibold text-yellow-200 sm:text-12px">{{ pf.gold }}</span>
       </div>
       <!-- 结晶 -->
-      <div class="hidden shrink-0 items-center gap-1 rounded-lg bg-white/5 px-2 py-1 md:flex">
+      <div class="game-chip hidden shrink-0 items-center gap-1 px-2 py-1 md:flex">
         <span class="i-mdi-diamond-outline text-cyan-300" />
         <span class="text-12px font-semibold text-cyan-100">{{ pf.soul }}</span>
       </div>
       <!-- 强化石 -->
-      <div class="hidden shrink-0 items-center gap-1 rounded-lg bg-white/5 px-2 py-1 md:flex">
+      <div class="game-chip hidden shrink-0 items-center gap-1 px-2 py-1 md:flex">
         <span class="i-mdi-hexagon-multiple-outline text-violet-300" />
         <span class="text-12px font-semibold text-violet-100">{{ pf.stone }}</span>
       </div>
       <!-- 体力 -->
-      <div class="flex shrink-0 items-center gap-1 rounded-lg bg-white/5 px-1.5 py-1 sm:px-2">
+      <div class="game-chip flex shrink-0 items-center gap-1 px-1.5 py-1 sm:px-2">
         <span class="i-mdi-lightning-bolt text-green-400" />
         <span class="text-11px font-semibold sm:text-12px">{{ Math.floor(pf.stamina) }}/{{ store.STAMINA_MAX }}</span>
       </div>
@@ -96,6 +96,7 @@ async function restart() {
   justify-content: center;
   height: 28px;
   min-width: 28px;
+  min-height: 32px;
   border-radius: 8px;
   color: rgb(255 255 255 / 65%);
 }
@@ -103,4 +104,5 @@ async function restart() {
   background: rgb(255 255 255 / 10%);
   color: white;
 }
+.icon-btn:active { transform: translateY(1px) scale(.96); }
 </style>

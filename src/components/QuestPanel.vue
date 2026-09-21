@@ -3,7 +3,7 @@
     <section class="mb-5">
       <h3 class="mb-2 flex items-center gap-2 text-13px font-bold text-sky-300">
         <span class="i-mdi-calendar-sync" />{{ t('quest.daily') }}
-        <span class="text-11px font-normal text-white/40">· {{ t('quest.resetDaily') }}</span>
+        <span class="text-11px font-normal text-white/40">/ {{ t('quest.resetDaily') }}</span>
         <button
           class="ml-auto flex items-center gap-1 rounded-lg bg-yellow-500/20 px-2 py-1 text-11px text-yellow-300 hover:bg-yellow-500/30"
           :disabled="pf.gold < store.DAILY_REFRESH_COST"

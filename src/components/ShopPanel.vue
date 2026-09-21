@@ -26,7 +26,7 @@
     </div>
 
     <!-- 购买 -->
-    <div v-if="tab === 'buy'" class="grid grid-cols-2 gap-3 md:grid-cols-3">
+    <div v-if="tab === 'buy'" class="grid grid-cols-2 gap-3">
       <div
         v-for="(slot, i) in pf.shop.stock"
         :key="i"
@@ -55,7 +55,7 @@
     <!-- 出售 -->
     <div v-else>
       <div v-if="!pf.bag.length" class="flex h-40 items-center justify-center text-13px text-white/35">{{ t('bag.empty') }}</div>
-      <div v-else class="grid grid-cols-2 gap-2 md:grid-cols-3">
+      <div v-else class="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <div
           v-for="item in pf.bag"
           :key="item.uid"
@@ -112,7 +112,7 @@ function slotIcon(slot: ShopSlot): string {
 }
 function slotTitle(slot: ShopSlot): string {
   if (slot.kind === 'pet')
-    return `${t('pet.egg')} · ${t(`rarity.${slot.rarity}`)}`
+    return `${t('pet.egg')} / ${t(`rarity.${slot.rarity}`)}`
   if (slot.kind === 'equip')
     return itemName(slot.equip!)
   if (slot.kind === 'consumable')
@@ -121,9 +121,9 @@ function slotTitle(slot: ShopSlot): string {
 }
 function slotSub(slot: ShopSlot): string {
   if (slot.kind === 'pet')
-    return `Lv${slot.level} · ${t('rarity.' + slot.rarity)}`
+    return `Lv${slot.level} / ${t('rarity.' + slot.rarity)}`
   if (slot.kind === 'equip')
-    return `${t(`slot.${slotKind(slot)}`)} · Lv${slot.level}`
+    return `${t(`slot.${slotKind(slot)}`)} / Lv${slot.level}`
   return ''
 }
 function slotKind(slot: ShopSlot) {
