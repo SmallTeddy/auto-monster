@@ -217,6 +217,7 @@ const enUS: MessageSchema = {
     rare: 'Rare',
     epic: 'Epic',
     legendary: 'Legendary',
+    red: 'Best'
   },
   slot: {
     weapon: 'Weapon',
