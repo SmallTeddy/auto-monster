@@ -1,4 +1,4 @@
-export type Rarity = 'common' | 'rare' | 'epic' | 'legendary'
+export type Rarity = 'common' | 'rare' | 'epic' | 'legendary' | 'red'
 export type EquipSlot = 'weapon' | 'armor' | 'accessory'
 export type ItemKind = 'equip' | 'consumable' | 'material'
 
@@ -163,6 +163,18 @@ export interface BattleUnit {
   regen: number
   boss: boolean
   alive: boolean
+  /** 护盾值，优先吸收伤害 */
+  shield?: number
+  /** 每回合自动恢复的护盾值 */
+  shieldRegen?: number
+  /** 对目标造成最大生命百分比伤害的概率（0~1） */
+  pctDmgChance?: number
+  /** 百分比伤害强度（0~1，按目标 maxHp 计算） */
+  pctDmgPower?: number
+  /** 施加给目标的治疗削减回合数 */
+  healReduceTurns?: number
+  /** 当前单位受到的治疗削减（0~1，1 表示完全无法治疗） */
+  healReduce?: number
   /** 主动技能当前剩余冷却回合（仅 hero 使用，0 表示可释放） */
   skillCd?: number
 }
@@ -214,6 +226,8 @@ export interface Profile {
   pets: Pet[]
   bestFloor: number
   boons: string[]
+  /** 背包容量上限（可花费金币提升） */
+  bagCap: number
   shop: { stock: ShopSlot[], sold: boolean[], refreshCount: number }
   daily: { date: string, progress: Record<string, number>, claimed: Record<string, boolean>, refreshCount: number }
   achievements: { progress: Record<string, number>, claimed: Record<string, boolean> }

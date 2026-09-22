@@ -14,6 +14,15 @@ function makeUnit(o: Omit<BattleUnit, 'id' | 'alive' | 'critMul'>): BattleUnit {
 
 export function createEnemyUnit(level: number, sprite: MonsterSprite, boss: boolean): BattleUnit {
   const s = enemyStats(level, boss)
+  const lv = Math.max(1, level)
+  // 高难度怪物能力：随等级增长，Boss 更强
+  const tier = Math.min(1, lv / 40)
+  const shieldMax = boss
+    ? Math.round(s.hp * (0.35 + tier * 0.25))
+    : Math.round(s.hp * (0.08 + tier * 0.18))
+  const shieldRegen = boss
+    ? Math.round(s.hp * (0.04 + tier * 0.03))
+    : Math.round(s.hp * (0.015 + tier * 0.025))
   return makeUnit({
     name: boss ? sprite.name : sprite.name,
     sprite: sprite.url,
@@ -24,11 +33,16 @@ export function createEnemyUnit(level: number, sprite: MonsterSprite, boss: bool
     atk: s.atk,
     def: s.def,
     spd: s.spd,
-    crit: 0.08,
-    lifesteal: 0,
-    doubleHit: 0,
+    crit: 0.08 + tier * 0.12,
+    lifesteal: boss ? 0.15 + tier * 0.1 : tier * 0.05,
+    doubleHit: boss ? 0.25 + tier * 0.15 : tier * 0.1,
     regen: 0,
     boss,
+    shield: shieldMax,
+    shieldRegen,
+    pctDmgChance: boss ? 0.35 + tier * 0.25 : 0.06 + tier * 0.18,
+    pctDmgPower: boss ? 0.08 + tier * 0.06 : 0.04 + tier * 0.05,
+    healReduceTurns: boss ? 2 : 1,
   })
 }
 
@@ -103,14 +117,37 @@ function attack(attacker: BattleUnit, foes: BattleUnit[], events: BattleEvents) 
     const isCrit = chance(attacker.crit)
     const variance = 0.9 + Math.random() * 0.2
     let dmg = attacker.atk * variance * (isCrit ? attacker.critMul : 1) - target.def * 0.5
+    // 百分比伤害：按目标最大生命计算，无视防御
+    if (attacker.side === 'enemy' && chance(attacker.pctDmgChance ?? 0)) {
+      const pct = Math.round(target.maxHp * (attacker.pctDmgPower ?? 0))
+      dmg += pct
+      addLog(events.logs, `${attacker.name} 释放腐蚀之力，对 ${target.name} 造成 ${pct} 百分比伤害`, 'crit')
+    }
     dmg = Math.max(1, Math.round(dmg * (i === 1 ? 0.8 : 1)))
-    target.hp -= dmg
-    addFloat(events, target, `-${dmg}`, isCrit)
+    // 护盾优先吸收
+    let remain = dmg
+    if (target.shield && target.shield > 0) {
+      const absorbed = Math.min(target.shield, remain)
+      target.shield -= absorbed
+      remain -= absorbed
+      if (absorbed > 0)
+        addFloat(events, target, `护盾-${absorbed}`, false)
+    }
+    if (remain > 0) {
+      target.hp -= remain
+      addFloat(events, target, `-${remain}`, isCrit)
+    }
     addLog(
       events.logs,
       `${attacker.name} ${hits === 2 && i === 1 ? '连击' : '攻击'} ${target.name}，${isCrit ? '暴击 ' : ''}造成 ${dmg} 伤害`,
       isCrit ? 'crit' : 'hit',
     )
+    // 敌人攻击附加减治疗 debuff
+    if (attacker.side === 'enemy' && target.side !== 'enemy' && chance(0.3)) {
+      target.healReduce = Math.min(0.8, (target.healReduce ?? 0) + 0.3)
+      target.healReduceTurns = (target.healReduceTurns ?? 0) + (attacker.healReduceTurns ?? 1)
+      addLog(events.logs, `${target.name} 被施加了治疗削减效果`, 'hit')
+    }
     if (attacker.lifesteal > 0) {
       const heal = Math.round(dmg * attacker.lifesteal)
       attacker.hp = Math.min(attacker.maxHp, attacker.hp + heal)
@@ -133,8 +170,12 @@ export function stepRound(units: BattleUnit[], events: BattleEvents): 'fighting'
   for (const u of order) {
     if (!u.alive)
       continue
+    // 敌人每回合恢复护盾
+    if (u.side === 'enemy' && u.shieldRegen && u.shieldRegen > 0) {
+      u.shield = Math.min((u.shield ?? 0) + u.shieldRegen, u.maxHp)
+    }
     if (u.regen > 0) {
-      const heal = Math.round(u.maxHp * u.regen)
+      const heal = Math.round(u.maxHp * u.regen * (1 - (u.healReduce ?? 0)))
       if (heal > 0 && u.hp < u.maxHp) {
         u.hp = Math.min(u.maxHp, u.hp + heal)
         addFloat(events, u, `+${heal}`, false)
@@ -146,10 +187,17 @@ export function stepRound(units: BattleUnit[], events: BattleEvents): 'fighting'
     attack(u, foes, events)
   }
 
-  // 回合结束：所有单位技能冷却 -1
+  // 回合结束：技能冷却 -1，减治疗回合 -1
   for (const u of units) {
     if (u.skillCd && u.skillCd > 0)
       u.skillCd = Math.max(0, u.skillCd - 1)
+    if (u.healReduceTurns && u.healReduceTurns > 0) {
+      u.healReduceTurns -= 1
+      if (u.healReduceTurns <= 0) {
+        u.healReduce = 0
+        u.healReduceTurns = 0
+      }
+    }
   }
 
   const hero = units.find(u => u.side === 'hero')!
@@ -179,7 +227,7 @@ export function castHeroSkill(units: BattleUnit[], heroDefId: string, events: Ba
 
   switch (skill.type) {
     case 'heal': {
-      const heal = Math.round(hero.maxHp * skill.power)
+      const heal = Math.round(hero.maxHp * skill.power * (1 - (hero.healReduce ?? 0)))
       hero.hp = Math.min(hero.maxHp, hero.hp + heal)
       addFloat(events, hero, `+${heal}`, false)
       addLog(events.logs, `${hero.name} 释放【${skill.name}】，恢复 ${heal} 生命`, 'heal')

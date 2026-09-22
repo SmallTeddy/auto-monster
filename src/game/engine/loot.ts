@@ -139,7 +139,7 @@ export function shopSlotPreviewEquip(slot: ShopSlot): BagItem {
 }
 
 // ---------------- 工具 ----------------
-export function stackIntoBag(bag: BagItem[], item: BagItem): boolean {
+export function stackIntoBag(bag: BagItem[], item: BagItem, cap = BAG_CAP): boolean {
   if (item.kind !== 'equip') {
     const exist = bag.find(b => b.kind === item.kind && b.defId === item.defId)
     if (exist) {
@@ -147,7 +147,7 @@ export function stackIntoBag(bag: BagItem[], item: BagItem): boolean {
       return true
     }
   }
-  if (bag.length >= BAG_CAP)
+  if (bag.length >= cap)
     return false
   bag.push(item)
   return true

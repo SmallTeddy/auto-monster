@@ -2,8 +2,16 @@
   <ModalPanel :title="t('bag.title')" icon="i-mdi-bag-personal-outline" @close="$emit('close')">
     <template #extra>
       <span class="text-12px text-white/50">
-        {{ t('bag.capacity') }} {{ pf.bag.length }}/{{ BAG_CAP }}
+        {{ t('bag.capacity') }} {{ pf.bag.length }}/{{ pf.bagCap }}
       </span>
+      <!-- 购买背包容量 -->
+      <button
+        class="ml-2 rounded-lg bg-emerald-500/20 px-2 py-1 text-12px text-emerald-300 hover:bg-emerald-500/30"
+        :title="`花费 ${store.bagSlotCost()} 金币扩充 5 格背包`"
+        @click="store.buyBagSlot()"
+      >
+        <span class="i-mdi-plus mr-0.5" />扩容 ({{ store.bagSlotCost() }}金)
+      </button>
       <!-- 一键出售 -->
       <button class="ml-2 rounded-lg bg-yellow-500/20 px-2.5 py-1 text-12px text-yellow-300 hover:bg-yellow-500/30" @click="sellAllEquips">
         <span class="i-mdi-cash-multiple mr-0.5" />一键出售
@@ -150,7 +158,7 @@
         <div v-if="!pf.bag.length" class="flex h-40 items-center justify-center rounded-xl border border-dashed border-white/15 text-13px text-white/35">
           {{ t('bag.empty') }}
         </div>
-        <div v-else class="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
+        <div v-else class="grid grid-cols-8 gap-1 sm:gap-2">
           <ItemTile
             v-for="item in pf.bag"
             :key="item.uid"
@@ -248,7 +256,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type { BagItem, EquipSlot, Rarity } from '@/game/types'
-import { BAG_CAP } from '@/game/engine/loot'
 import { RARITY_META, RARITY_ORDER, UPGRADE_GOLD_COST, UPGRADE_SOUL_COST, enhanceCost, recycleGain, sellPrice } from '@/game/engine/stats'
 import { itemDesc, itemIcon, itemName, itemSlot } from '@/game/engine/items'
 import ModalPanel from './ModalPanel.vue'

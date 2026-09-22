@@ -4,13 +4,14 @@ import { getEquipDef } from '../data/catalog'
 import { getHero } from '../data/heroes'
 import { weighted } from './rng'
 
-export const RARITY_ORDER: Rarity[] = ['common', 'rare', 'epic', 'legendary']
+export const RARITY_ORDER: Rarity[] = ['common', 'rare', 'epic', 'legendary', 'red']
 
 export const RARITY_META: Record<Rarity, { mul: number, color: string, next?: Rarity }> = {
   common: { mul: 1, color: '#9ca3af', next: 'rare' },
   rare: { mul: 1.7, color: '#38bdf8', next: 'epic' },
   epic: { mul: 2.6, color: '#c084fc', next: 'legendary' },
-  legendary: { mul: 4, color: '#fbbf24' },
+  legendary: { mul: 4, color: '#fbbf24', next: 'red' },
+  red: { mul: 6.5, color: '#ef4444' },
 }
 
 /** 塔层/幸运值影响品质权重 */
@@ -18,20 +19,22 @@ export function rollRarity(floor: number, luckBonus = 0): Rarity {
   const rare = 22 + floor * 0.8 + luckBonus * 100
   const epic = 7 + floor * 0.5 + luckBonus * 60
   const legend = 1.2 + floor * 0.12 + luckBonus * 25
+  const red = Math.max(0, floor * 0.04 - 0.8) + luckBonus * 10
   return weighted<Rarity>([
-    ['common', Math.max(20, 100 - rare - epic - legend)],
+    ['common', Math.max(10, 100 - rare - epic - legend - red)],
     ['rare', rare],
     ['epic', epic],
     ['legendary', legend],
+    ['red', red],
   ])
 }
 
-/** 装备实例的实际属性 */
+/** 装备实例的实际属性（等级强挂钩） */
 export function equipStats(item: BagItem): Stats {
   const def = getEquipDef(item.defId)
   const rarityMul = RARITY_META[item.rarity ?? 'common'].mul
-  const lvMul = 1 + ((item.itemLevel ?? 1) - 1) * 0.09
-  const enhMul = 1 + (item.enhance ?? 0) * 0.08
+  const lvMul = 1 + ((item.itemLevel ?? 1) - 1) * 0.16
+  const enhMul = 1 + (item.enhance ?? 0) * 0.1
   const k = rarityMul * lvMul * enhMul
   return {
     hp: Math.round((def.base.hp ?? 0) * k),
@@ -58,9 +61,10 @@ export function recycleGain(item: BagItem): { stone: number, soul: number } {
   if (item.kind !== 'equip')
     return { stone: 0, soul: 0 }
   const idx = RARITY_ORDER.indexOf(item.rarity ?? 'common')
+  const soulTable = [1, 3, 8, 20, 50]
   return {
     stone: idx + 1 + Math.floor((item.enhance ?? 0) / 5),
-    soul: [1, 3, 8, 20][idx] + (item.enhance ?? 0),
+    soul: (soulTable[idx] ?? 1) + (item.enhance ?? 0),
   }
 }
 
@@ -166,8 +170,8 @@ export function enhanceCost(rarityIdx: number, enhance: number): { gold: number,
   }
 }
 
-export const UPGRADE_SOUL_COST = [6, 18, 45]
-export const UPGRADE_GOLD_COST = [300, 900, 3000]
+export const UPGRADE_SOUL_COST = [6, 18, 45, 120]
+export const UPGRADE_GOLD_COST = [300, 900, 3000, 8000]
 
 export function expNeed(level: number): number {
   return 50 + level * 30

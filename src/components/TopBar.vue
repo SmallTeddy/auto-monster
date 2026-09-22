@@ -44,6 +44,11 @@
       <div class="game-chip flex shrink-0 items-center gap-1 px-1.5 py-1 sm:px-2">
         <span class="i-mdi-lightning-bolt text-green-400" />
         <span class="text-11px font-semibold sm:text-12px">{{ Math.floor(pf.stamina) }}/{{ store.STAMINA_MAX }}</span>
+        <button
+          class="ml-0.5 rounded bg-green-500/20 px-1 text-10px text-green-300 transition hover:bg-green-500/40"
+          :title="`花费 ${store.STAMINA_BUY_COST} 金币购买 ${store.STAMINA_BUY_AMOUNT} 体力`"
+          @click="store.buyStamina()"
+        >+</button>
       </div>
     </div>
 

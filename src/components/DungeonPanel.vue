@@ -4,7 +4,7 @@
       <span class="game-chip"><span class="i-mdi-lightning-bolt text-green-400" />{{ Math.floor(pf.stamina) }}/{{ store.STAMINA_MAX }}</span>
     </template>
 
-    <div class="grid grid-cols-1 gap-4">
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-1">
       <div
         v-for="d in DUNGEONS"
         :key="d.id"

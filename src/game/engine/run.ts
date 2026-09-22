@@ -20,7 +20,7 @@ export function genTowerWave(floor: number): BattleUnit[] {
     units.push(createEnemyUnit(floor + 1, sp, true))
   }
   else {
-    const count = Math.min(8, 1 + Math.floor(floor / 5))
+    const count = Math.min(12, 1 + Math.floor(floor / 4))
     const pool = mobPool(tMin, tMax)
     const chosen = new Set<string>()
     for (let i = 0; i < count; i++) {
@@ -48,16 +48,16 @@ export function genDungeonWave(def: DungeonDef, waveIndex: number): BattleUnit[]
   const units: BattleUnit[] = []
   if (isBoss) {
     units.push(createEnemyUnit(level + 2, spriteByName(def.boss), true))
-    // 首领带 1-2 个小怪
+    // 首领带 2-4 个小怪
     const adds = themePool(def.theme).filter(s => s.name !== def.boss)
-    for (let i = 0; i < Math.min(2, adds.length); i++)
+    for (let i = 0; i < Math.min(4, adds.length); i++)
       units.push(createEnemyUnit(level, pick(adds), false))
   }
   else {
     let pool = themePool(def.theme)
     if (!pool.length)
       pool = mobPool(1, 5)
-    const count = 2 + Math.min(1, Math.floor(waveIndex / 2))
+    const count = Math.min(6, 2 + Math.floor(waveIndex / 2))
     const chosen = new Set<string>()
     for (let i = 0; i < count; i++) {
       let sp: MonsterSprite | undefined

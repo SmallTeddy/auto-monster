@@ -78,11 +78,12 @@ function defaultProfile(heroId: string): Profile {
     pets: [starter],
     bestFloor: 0,
     boons: [],
+    bagCap: 30,
     shop: { stock: genShopStock(1), sold: [false, false, false, false, false, false], refreshCount: 0 },
     daily: { date: todayStr(), progress: {}, claimed: {}, refreshCount: 0 },
     achievements: { progress: {}, claimed: {} },
     stats: {},
-    stamina: 100,
+    stamina: 1000,
     staminaAt: Date.now(),
     dungeonCount: {},
     autoRecycleCfg: { enabled: false, minLevel: 1, maxLevel: 999, rarities: ['common'] },
@@ -91,8 +92,12 @@ function defaultProfile(heroId: string): Profile {
   }
 }
 
-const STAMINA_MAX = 100
+const STAMINA_MAX = 1000
 const STAMINA_REGEN_MS = 30_000
+/** 每次购买体力恢复量 */
+const STAMINA_BUY_AMOUNT = 100
+/** 购买体力基础金币消耗 */
+const STAMINA_BUY_COST = 50
 
 export const useGlobalState = createGlobalState(() => {
   // 注意：默认值为 null 时 VueUse 会推断为 any 序列化器（String(v)），
@@ -149,6 +154,8 @@ export const useGlobalState = createGlobalState(() => {
     }
     if (pf.autoSellCfg === undefined)
       pf.autoSellCfg = { enabled: false, minLevel: 1, maxLevel: 999, rarities: ['common'] }
+    if (pf.bagCap === undefined)
+      pf.bagCap = BAG_CAP
   }
 
   const toasts = ref<Toast[]>([])
@@ -329,7 +336,7 @@ export const useGlobalState = createGlobalState(() => {
         kind: 'consumable',
         defId: def.rewards.item.defId,
         count: def.rewards.item.count,
-      })
+      }, pf.bagCap)
     }
     toast(`任务奖励已领取`, 'success')
   }
@@ -350,6 +357,24 @@ export const useGlobalState = createGlobalState(() => {
       if (pf.stamina >= STAMINA_MAX)
         pf.staminaAt = Date.now()
     }
+  }
+
+  /** 花金币购买体力 */
+  function buyStamina(): boolean {
+    const pf = p()
+    if (pf.stamina >= STAMINA_MAX) {
+      toast('体力已满', 'error')
+      return false
+    }
+    if (pf.gold < STAMINA_BUY_COST) {
+      toast(`金币不足（需 ${STAMINA_BUY_COST}）`, 'error')
+      return false
+    }
+    pf.gold -= STAMINA_BUY_COST
+    pf.stamina = Math.min(STAMINA_MAX, pf.stamina + STAMINA_BUY_AMOUNT)
+    pf.staminaAt = Date.now()
+    toast(`+${STAMINA_BUY_AMOUNT} 体力`, 'success')
+    return true
   }
 
   // ---------------- 经验 / 物品 ----------------
@@ -376,7 +401,7 @@ export const useGlobalState = createGlobalState(() => {
 
   function addItem(item: BagItem): { added: boolean, autoSold: number, autoRecycled: boolean } {
     const pf = p()
-    if (stackIntoBag(pf.bag, item))
+    if (stackIntoBag(pf.bag, item, pf.bagCap))
       return { added: true, autoSold: 0, autoRecycled: false }
     // 背包满：自动回收优先
     if (matchAutoCfg(item, pf.autoRecycleCfg)) {
@@ -535,6 +560,31 @@ export const useGlobalState = createGlobalState(() => {
     }
   }
 
+  /** 购买背包容量：每次 +5 格，价格递增 */
+  const BAG_SLOT_STEP = 5
+  const BAG_MAX_CAP = 200
+  function bagSlotCost(): number {
+    const pf = p()
+    const steps = Math.floor((pf.bagCap - BAG_CAP) / BAG_SLOT_STEP)
+    return Math.round(200 * (1 + steps * 0.5))
+  }
+  function buyBagSlot(): boolean {
+    const pf = p()
+    if (pf.bagCap >= BAG_MAX_CAP) {
+      toast('背包已达最大容量', 'error')
+      return false
+    }
+    const cost = bagSlotCost()
+    if (pf.gold < cost) {
+      toast(`金币不足（需 ${cost}）`, 'error')
+      return false
+    }
+    pf.gold -= cost
+    pf.bagCap = Math.min(BAG_MAX_CAP, pf.bagCap + BAG_SLOT_STEP)
+    toast(`背包容量提升至 ${pf.bagCap}`, 'success')
+    return true
+  }
+
   function usePotion(itemUid?: string): boolean {
     const pf = p()
     const hero = run.units.find(u => u.side === 'hero')
@@ -549,7 +599,7 @@ export const useGlobalState = createGlobalState(() => {
       return false
     }
     const def = getConsumableDef(item.defId)
-    const heal = Math.round(hero.maxHp * (def.heal ?? 0))
+    const heal = Math.round(hero.maxHp * (def.heal ?? 0) * (1 - (hero.healReduce ?? 0)))
     hero.hp = Math.min(hero.maxHp, hero.hp + heal)
     run.floats.push({ id: Date.now(), uid: hero.id, text: `+${heal}`, crit: false })
     pushLog(`${def.name}：恢复 ${heal} 生命`, 'heal')
@@ -593,7 +643,7 @@ export const useGlobalState = createGlobalState(() => {
     const item = pf.equipped[slot]
     if (!item)
       return
-    if (pf.bag.length >= BAG_CAP) {
+    if (pf.bag.length >= pf.bagCap) {
       toast(i18n.global.t('bag.bagFull'), 'error')
       return
     }
@@ -699,7 +749,7 @@ export const useGlobalState = createGlobalState(() => {
       return
     }
     if (slot.kind === 'equip') {
-      if (pf.bag.length >= BAG_CAP) {
+      if (pf.bag.length >= pf.bagCap) {
         toast('背包已满', 'error')
         return
       }
@@ -723,8 +773,8 @@ export const useGlobalState = createGlobalState(() => {
   function deployPet(petUid: string) {
     const pf = p()
     const count = pf.pets.filter(x => x.deployed).length
-    if (count >= 7) {
-      toast(i18n.global.t('pet.deployLimit', { n: 7 }), 'error')
+    if (count >= 5) {
+      toast(i18n.global.t('pet.deployLimit', { n: 5 }), 'error')
       return
     }
     const pet = pf.pets.find(x => x.uid === petUid)
@@ -1059,8 +1109,8 @@ export const useGlobalState = createGlobalState(() => {
     confirmDialog, confirm, resolveConfirm,
     createSave, deleteSave, toggleLang, toggleAutoRecycle, toggleAutoSell, updateAutoCfg, refreshDaily, DAILY_REFRESH_COST,
     questProgress, claimableCount, claimQuest,
-    syncStamina, gainExp, addItem, addPet,
-    sortBag, sellItem, recycleItem, sellAllEquips, recycleAllEquips, usePotion,
+    syncStamina, buyStamina, STAMINA_BUY_COST, STAMINA_BUY_AMOUNT, gainExp, addItem, addPet,
+    sortBag, sellItem, recycleItem, sellAllEquips, recycleAllEquips, buyBagSlot, bagSlotCost, usePotion,
     equipItem, unequipItem, enhanceItem, upgradeItem, MAX_ENHANCE,
     refreshShop, buyShop,
     deployPet, withdrawPet, trainPet, petSellPrice, sellPet, recyclePet,

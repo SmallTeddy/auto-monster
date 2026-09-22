@@ -23,7 +23,7 @@
         <UnitCard v-for="u in enemies" :key="`arena-${u.id}`" :unit="u" :floats="run.floats" />
       </div>
       <div class="battle-arena__divider"><span>VS</span></div>
-      <div class="battle-arena__allies relative z-1 flex max-w-full items-end justify-center gap-2 px-2 sm:gap-4">
+      <div class="battle-arena__allies relative z-1 flex w-full max-w-full flex-wrap items-end justify-around gap-1 px-2 sm:gap-3">
         <UnitCard v-for="u in allies" :key="`arena-${u.id}`" :unit="u" :floats="run.floats" />
       </div>
     </main>
