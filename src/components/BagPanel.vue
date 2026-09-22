@@ -18,60 +18,96 @@
     </template>
 
     <!-- 自动处理配置栏 -->
-    <div class="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+    <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
       <!-- 自动回收配置 -->
-      <div class="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-2.5">
-        <div class="mb-1.5 flex items-center justify-between">
+      <div
+        class="rounded-2xl border p-3 transition-colors"
+        :class="pf.autoRecycleCfg.enabled ? 'border-cyan-300/35 bg-cyan-400/8' : 'border-white/10 bg-white/3'"
+      >
+        <div class="flex items-start justify-between gap-3">
           <button
-            class="flex items-center gap-1 text-12px font-bold"
-            :class="pf.autoRecycleCfg.enabled ? 'text-cyan-300' : 'text-white/50'"
+            class="group flex min-w-0 items-center gap-2 text-left"
+            :aria-pressed="pf.autoRecycleCfg.enabled"
             @click="store.toggleAutoRecycle()"
           >
-            <span class="i-mdi-recycle" />自动回收
-            <span class="text-10px" :class="pf.autoRecycleCfg.enabled ? 'text-cyan-300' : 'text-white/30'">{{ pf.autoRecycleCfg.enabled ? '开' : '关' }}</span>
+            <span
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-17px transition-colors"
+              :class="pf.autoRecycleCfg.enabled ? 'bg-cyan-300/15 text-cyan-200' : 'bg-white/6 text-white/40'"
+            >
+              <span class="i-mdi-recycle" />
+            </span>
+            <span class="min-w-0">
+              <span class="block text-12px font-bold" :class="pf.autoRecycleCfg.enabled ? 'text-cyan-200' : 'text-white/65'">自动回收</span>
+              <span class="mt-0.5 block truncate text-10px text-white/38">回收选中范围内的装备</span>
+            </span>
           </button>
-          <span class="text-10px text-white/40">背包满时触发</span>
+          <span
+            class="rounded-md border px-1.5 py-0.5 text-9px font-bold tracking-widest"
+            :class="pf.autoRecycleCfg.enabled ? 'border-cyan-300/30 bg-cyan-300/10 text-cyan-200' : 'border-white/10 bg-white/4 text-white/35'"
+          >{{ pf.autoRecycleCfg.enabled ? 'ON' : 'OFF' }}</span>
         </div>
-        <div v-if="pf.autoRecycleCfg.enabled" class="space-y-1.5">
-          <div class="flex items-center gap-1.5 text-11px text-white/60">
+        <div v-if="pf.autoRecycleCfg.enabled" class="mt-3 space-y-2.5 border-t border-cyan-200/10 pt-3">
+          <div class="flex items-center justify-between text-10px text-white/40">
+            <span class="font-semibold tracking-wide text-white/55">处理范围</span>
+            <span>背包满时生效</span>
+          </div>
+          <div class="flex items-center gap-1.5 text-11px text-white/65">
             <span>等级</span>
-            <input v-model.number="recycleMin" type="number" min="1" class="w-12 rounded bg-black/40 px-1.5 py-0.5 text-11px text-white outline-none" @change="onCfgChange('recycle')">
-            <span>~</span>
-            <input v-model.number="recycleMax" type="number" min="1" class="w-12 rounded bg-black/40 px-1.5 py-0.5 text-11px text-white outline-none" @change="onCfgChange('recycle')">
+            <input v-model.number="recycleMin" type="number" min="1" class="h-7 w-14 rounded-md border border-white/10 bg-black/25 px-1.5 text-center text-11px text-white outline-none transition focus:border-cyan-300/50 focus:ring-1 focus:ring-cyan-300/20" @change="onCfgChange('recycle')">
+            <span class="text-white/30">—</span>
+            <input v-model.number="recycleMax" type="number" min="1" class="h-7 w-14 rounded-md border border-white/10 bg-black/25 px-1.5 text-center text-11px text-white outline-none transition focus:border-cyan-300/50 focus:ring-1 focus:ring-cyan-300/20" @change="onCfgChange('recycle')">
           </div>
           <div class="flex flex-wrap gap-1.5">
-            <label v-for="r in rarities" :key="r" class="flex items-center gap-1 text-10px" :style="{ color: rarityColor(r) }">
-              <input type="checkbox" :checked="pf.autoRecycleCfg.rarities.includes(r)" @change="toggleRarity('recycle', r)">
-              {{ rarityLabel(r) }}
+            <label v-for="r in rarities" :key="r" class="flex cursor-pointer items-center gap-1.5 rounded-md border px-2 py-1 text-10px transition-colors" :class="pf.autoRecycleCfg.rarities.includes(r) ? 'border-cyan-300/35 bg-cyan-300/10' : 'border-white/8 bg-black/15 opacity-55 hover:opacity-90'" :style="{ color: rarityColor(r) }">
+              <input type="checkbox" class="accent-cyan-300" :checked="pf.autoRecycleCfg.rarities.includes(r)" @change="toggleRarity('recycle', r)">
+              <span>{{ rarityLabel(r) }}</span>
             </label>
           </div>
         </div>
       </div>
 
       <!-- 自动出售配置 -->
-      <div class="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-2.5">
-        <div class="mb-1.5 flex items-center justify-between">
+      <div
+        class="rounded-2xl border p-3 transition-colors"
+        :class="pf.autoSellCfg.enabled ? 'border-amber-300/35 bg-amber-400/8' : 'border-white/10 bg-white/3'"
+      >
+        <div class="flex items-start justify-between gap-3">
           <button
-            class="flex items-center gap-1 text-12px font-bold"
-            :class="pf.autoSellCfg.enabled ? 'text-yellow-300' : 'text-white/50'"
+            class="group flex min-w-0 items-center gap-2 text-left"
+            :aria-pressed="pf.autoSellCfg.enabled"
             @click="store.toggleAutoSell()"
           >
-            <span class="i-mdi-cash-multiple" />自动出售
-            <span class="text-10px" :class="pf.autoSellCfg.enabled ? 'text-yellow-300' : 'text-white/30'">{{ pf.autoSellCfg.enabled ? '开' : '关' }}</span>
+            <span
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-17px transition-colors"
+              :class="pf.autoSellCfg.enabled ? 'bg-amber-300/15 text-amber-200' : 'bg-white/6 text-white/40'"
+            >
+              <span class="i-mdi-cash-multiple" />
+            </span>
+            <span class="min-w-0">
+              <span class="block text-12px font-bold" :class="pf.autoSellCfg.enabled ? 'text-amber-200' : 'text-white/65'">自动出售</span>
+              <span class="mt-0.5 block truncate text-10px text-white/38">出售选中范围内的装备</span>
+            </span>
           </button>
-          <span class="text-10px text-white/40">背包满时触发</span>
+          <span
+            class="rounded-md border px-1.5 py-0.5 text-9px font-bold tracking-widest"
+            :class="pf.autoSellCfg.enabled ? 'border-amber-300/30 bg-amber-300/10 text-amber-200' : 'border-white/10 bg-white/4 text-white/35'"
+          >{{ pf.autoSellCfg.enabled ? 'ON' : 'OFF' }}</span>
         </div>
-        <div v-if="pf.autoSellCfg.enabled" class="space-y-1.5">
-          <div class="flex items-center gap-1.5 text-11px text-white/60">
+        <div v-if="pf.autoSellCfg.enabled" class="mt-3 space-y-2.5 border-t border-amber-200/10 pt-3">
+          <div class="flex items-center justify-between text-10px text-white/40">
+            <span class="font-semibold tracking-wide text-white/55">处理范围</span>
+            <span>背包满时生效</span>
+          </div>
+          <div class="flex items-center gap-1.5 text-11px text-white/65">
             <span>等级</span>
-            <input v-model.number="sellMin" type="number" min="1" class="w-12 rounded bg-black/40 px-1.5 py-0.5 text-11px text-white outline-none" @change="onCfgChange('sell')">
-            <span>~</span>
-            <input v-model.number="sellMax" type="number" min="1" class="w-12 rounded bg-black/40 px-1.5 py-0.5 text-11px text-white outline-none" @change="onCfgChange('sell')">
+            <input v-model.number="sellMin" type="number" min="1" class="h-7 w-14 rounded-md border border-white/10 bg-black/25 px-1.5 text-center text-11px text-white outline-none transition focus:border-amber-300/50 focus:ring-1 focus:ring-amber-300/20" @change="onCfgChange('sell')">
+            <span class="text-white/30">—</span>
+            <input v-model.number="sellMax" type="number" min="1" class="h-7 w-14 rounded-md border border-white/10 bg-black/25 px-1.5 text-center text-11px text-white outline-none transition focus:border-amber-300/50 focus:ring-1 focus:ring-amber-300/20" @change="onCfgChange('sell')">
           </div>
           <div class="flex flex-wrap gap-1.5">
-            <label v-for="r in rarities" :key="r" class="flex items-center gap-1 text-10px" :style="{ color: rarityColor(r) }">
-              <input type="checkbox" :checked="pf.autoSellCfg.rarities.includes(r)" @change="toggleRarity('sell', r)">
-              {{ rarityLabel(r) }}
+            <label v-for="r in rarities" :key="r" class="flex cursor-pointer items-center gap-1.5 rounded-md border px-2 py-1 text-10px transition-colors" :class="pf.autoSellCfg.rarities.includes(r) ? 'border-amber-300/35 bg-amber-300/10' : 'border-white/8 bg-black/15 opacity-55 hover:opacity-90'" :style="{ color: rarityColor(r) }">
+              <input type="checkbox" class="accent-amber-300" :checked="pf.autoSellCfg.rarities.includes(r)" @change="toggleRarity('sell', r)">
+              <span>{{ rarityLabel(r) }}</span>
             </label>
           </div>
         </div>
