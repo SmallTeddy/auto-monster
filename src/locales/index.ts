@@ -45,7 +45,7 @@ const zhCN = {
     rare: '精良',
     epic: '史诗',
     legendary: '传说',
-    red: '神话'
+    red: '神话',
   },
   slot: {
     weapon: '武器',
@@ -217,7 +217,7 @@ const enUS: MessageSchema = {
     rare: 'Rare',
     epic: 'Epic',
     legendary: 'Legendary',
-    red: 'Best'
+    red: 'Best',
   },
   slot: {
     weapon: 'Weapon',
