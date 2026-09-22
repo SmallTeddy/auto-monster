@@ -385,11 +385,29 @@ export const useGlobalState = createGlobalState(() => {
       pf.soul += gain.soul
       return { added: false, autoSold: 0, autoRecycled: true }
     }
-    // 背包满：自动出售
     if (matchAutoCfg(item, pf.autoSellCfg)) {
       const gold = sellPrice(item)
       pf.gold += gold
       return { added: false, autoSold: gold, autoRecycled: false }
+    }
+    // 新装备不在清理范围时，优先替换背包内命中的旧装备
+    if (item.kind === 'equip') {
+      const oldIdx = pf.bag.findIndex(b => matchAutoCfg(b, pf.autoRecycleCfg))
+      if (oldIdx !== -1) {
+        const [old] = pf.bag.splice(oldIdx, 1)
+        const gain = recycleGain(old)
+        pf.stone += gain.stone
+        pf.soul += gain.soul
+        pf.bag.push(item)
+        return { added: true, autoSold: 0, autoRecycled: false }
+      }
+      const sellIdx = pf.bag.findIndex(b => matchAutoCfg(b, pf.autoSellCfg))
+      if (sellIdx !== -1) {
+        const [old] = pf.bag.splice(sellIdx, 1)
+        pf.gold += sellPrice(old)
+        pf.bag.push(item)
+        return { added: true, autoSold: 0, autoRecycled: false }
+      }
     }
     // 背包满：装备自动出售，其余丢弃
     const gold = item.kind === 'equip' ? sellPrice(item) : 0
