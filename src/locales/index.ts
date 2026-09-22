@@ -45,6 +45,7 @@ const zhCN = {
     rare: '精良',
     epic: '史诗',
     legendary: '传说',
+    red: '神话'
   },
   slot: {
     weapon: '武器',
