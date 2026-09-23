@@ -232,11 +232,10 @@
             </div>
           </template>
 
-          <!-- 消耗品 -->
+          <!-- 消耗品（旧存档兼容） -->
           <template v-else-if="detailItem.kind === 'consumable'">
             <div class="mb-2 text-12px text-white/50">x{{ detailItem.count }}</div>
-            <button class="game-btn w-full" @click="store.usePotion(detailItem.uid)">{{ t('common.use') }}</button>
-            <button class="game-btn-ghost mt-2 w-full" @click="store.sellItem(detailItem.uid); clear()">{{ t('common.sell') }}</button>
+            <button class="game-btn-ghost w-full" @click="store.sellItem(detailItem.uid); clear()">{{ t('common.sell') }}</button>
           </template>
 
           <!-- 材料 -->

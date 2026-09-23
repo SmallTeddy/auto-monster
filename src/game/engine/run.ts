@@ -21,8 +21,8 @@ export function genTowerWave(floor: number): BattleUnit[] {
     units.push(createEnemyUnit(floor + 1, sp, true))
   }
   else {
-    // 非首领层固定 12 只怪兽
-    const count = 12
+    // 非首领层：怪兽数量从 1 只随层数逐渐增加到 12 只
+    const count = Math.min(12, 1 + Math.floor((floor - 1) / 4))
     const pool = mobPool(tMin, tMax)
     const chosen = new Set<string>()
     for (let i = 0; i < count; i++) {

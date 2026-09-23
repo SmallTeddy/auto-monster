@@ -39,13 +39,11 @@ export function getEquipDef(id: string): EquipDef {
 }
 
 // ---------------- 消耗品 ----------------
-export const CONSUMABLES: ConsumableDef[] = [
-  { id: 'potion_s', name: '小型治疗药水', icon: 'i-mdi-bottle-tonic-outline', desc: '恢复英雄 40% 生命', price: 40, heal: 0.4 },
-  { id: 'potion_l', name: '大型治疗药水', icon: 'i-mdi-flask-round-bottom-outline', desc: '恢复英雄 80% 生命', price: 120, heal: 0.8 },
-]
+// 药水已移除，保留空数组以兼容类型
+export const CONSUMABLES: ConsumableDef[] = []
 
-export function getConsumableDef(id: string): ConsumableDef {
-  return CONSUMABLES.find(c => c.id === id) ?? CONSUMABLES[0]
+export function getConsumableDef(id: string): ConsumableDef | undefined {
+  return CONSUMABLES.find(c => c.id === id)
 }
 
 // ---------------- 材料 ----------------

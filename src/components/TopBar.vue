@@ -55,10 +55,11 @@
     <div class="flex shrink-0 items-center gap-0.5 sm:gap-1">
       <button
         class="icon-btn"
-        :title="t('common.refresh')"
-        @click="restart"
+        title="返回首页"
+        aria-label="返回首页"
+        @click="goHome"
       >
-        <span class="i-mdi-restart text-18px" />
+        <span class="i-mdi-home text-18px" />
       </button>
     </div>
 
@@ -69,6 +70,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useIntervalFn } from '@vueuse/core'
 import { useGlobalState } from '@/store'
 import { expNeed } from '@/game/engine/stats'
@@ -76,6 +78,7 @@ import HeroInfoPanel from './HeroInfoPanel.vue'
 
 const { t } = useI18n()
 const store = useGlobalState()
+const router = useRouter()
 const pf = store.profile
 const { run } = store
 
@@ -86,11 +89,9 @@ useIntervalFn(() => store.syncStamina(), 5000)
 const expPct = computed(() => Math.min(100, (pf.value!.exp / expNeed(pf.value!.level)) * 100))
 const dungeonName = computed(() => store.dungeonDef(run.dungeonDefId).name)
 
-async function restart() {
-  const msg = run.mode === 'dungeon' ? '放弃当前副本并回到魔塔第 1 层？' : '重新开始本次冒险？（装备物品保留）'
-  const ok = await store.confirm(msg)
-  if (ok)
-    store.startRun()
+function goHome() {
+  // 回到角色选择界面，可选择其他角色重新开始游戏
+  router.push('/')
 }
 </script>
 

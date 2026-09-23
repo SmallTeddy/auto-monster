@@ -94,10 +94,6 @@
         <button class="icon-mini" @click="paused = !paused">
           <span :class="paused ? 'i-mdi-play' : 'i-mdi-pause'" />
         </button>
-        <button class="icon-mini" :title="t('battle.quickPotion')" @click="store.usePotion()">
-          <span class="i-mdi-bottle-tonic-outline" />
-          <span class="text-10px text-sky-300">{{ potionCount }}</span>
-        </button>
       </div>
     </div>
 
@@ -300,10 +296,6 @@ onUnmounted(clearBoonTimer)
 const enemies = computed(() => run.units.filter(u => u.side === 'enemy'))
 const allies = computed(() => run.units.filter(u => u.side !== 'enemy'))
 const isBossFloor = computed(() => run.floor % 5 === 0)
-const potionCount = computed(() => {
-  const item = pf.value!.bag.find(b => b.kind === 'consumable')
-  return item ? item.count : 0
-})
 const claimable = computed(() => store.claimableCount() > 0)
 
 // 主动技能

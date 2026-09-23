@@ -14,7 +14,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 120,
       exp: 90,
-      items: [{ defId: 'potion_s', count: 2 }, { defId: 'stone', count: 1 }],
+      items: [{ defId: 'stone', count: 2 }, { defId: 'stone', count: 1 }],
     },
   },
   {
@@ -30,7 +30,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 300,
       exp: 220,
-      items: [{ defId: 'potion_l', count: 1 }, { defId: 'stone', count: 3 }],
+      items: [{ defId: 'stone', count: 1 }, { defId: 'stone', count: 3 }],
     },
   },
   {
@@ -46,7 +46,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 650,
       exp: 480,
-      items: [{ defId: 'stone', count: 6 }, { defId: 'potion_l', count: 2 }],
+      items: [{ defId: 'stone', count: 6 }, { defId: 'stone', count: 2 }],
       egg: true,
     },
   },
@@ -80,7 +80,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 2000,
       exp: 1600,
-      items: [{ defId: 'stone', count: 15 }, { defId: 'potion_l', count: 3 }],
+      items: [{ defId: 'stone', count: 15 }, { defId: 'stone', count: 3 }],
     },
   },
   {
@@ -113,7 +113,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 5000,
       exp: 4200,
-      items: [{ defId: 'stone', count: 28 }, { defId: 'potion_l', count: 5 }],
+      items: [{ defId: 'stone', count: 28 }, { defId: 'stone', count: 5 }],
     },
   },
   {
@@ -146,7 +146,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 11000,
       exp: 9500,
-      items: [{ defId: 'stone', count: 45 }, { defId: 'potion_l', count: 6 }],
+      items: [{ defId: 'stone', count: 45 }, { defId: 'stone', count: 6 }],
     },
   },
   {
@@ -179,7 +179,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 23000,
       exp: 20000,
-      items: [{ defId: 'stone', count: 70 }, { defId: 'potion_l', count: 8 }],
+      items: [{ defId: 'stone', count: 70 }, { defId: 'stone', count: 8 }],
     },
   },
   {
@@ -212,7 +212,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 44000,
       exp: 39000,
-      items: [{ defId: 'stone', count: 100 }, { defId: 'potion_l', count: 10 }],
+      items: [{ defId: 'stone', count: 100 }, { defId: 'stone', count: 10 }],
     },
   },
   {
@@ -245,7 +245,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 82000,
       exp: 72000,
-      items: [{ defId: 'stone', count: 145 }, { defId: 'potion_l', count: 12 }],
+      items: [{ defId: 'stone', count: 145 }, { defId: 'stone', count: 12 }],
     },
   },
   {
@@ -278,7 +278,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 150000,
       exp: 130000,
-      items: [{ defId: 'stone', count: 210 }, { defId: 'potion_l', count: 15 }],
+      items: [{ defId: 'stone', count: 210 }, { defId: 'stone', count: 15 }],
     },
   },
   {
@@ -311,7 +311,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 270000,
       exp: 235000,
-      items: [{ defId: 'stone', count: 300 }, { defId: 'potion_l', count: 18 }],
+      items: [{ defId: 'stone', count: 300 }, { defId: 'stone', count: 18 }],
     },
   },
   {
@@ -344,7 +344,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 480000,
       exp: 410000,
-      items: [{ defId: 'stone', count: 430 }, { defId: 'potion_l', count: 22 }],
+      items: [{ defId: 'stone', count: 430 }, { defId: 'stone', count: 22 }],
     },
   },
   {
@@ -377,7 +377,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 850000,
       exp: 740000,
-      items: [{ defId: 'stone', count: 620 }, { defId: 'potion_l', count: 25 }],
+      items: [{ defId: 'stone', count: 620 }, { defId: 'stone', count: 25 }],
     },
   },
   {
@@ -410,7 +410,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 1500000,
       exp: 1300000,
-      items: [{ defId: 'stone', count: 880 }, { defId: 'potion_l', count: 30 }],
+      items: [{ defId: 'stone', count: 880 }, { defId: 'stone', count: 30 }],
     },
   },
   {
@@ -426,7 +426,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 3000000,
       exp: 2500000,
-      items: [{ defId: 'stone', count: 1200 }, { defId: 'potion_l', count: 50 }],
+      items: [{ defId: 'stone', count: 1200 }, { defId: 'stone', count: 50 }],
       egg: true,
     },
   },
@@ -443,7 +443,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 6000000,
       exp: 5000000,
-      items: [{ defId: 'stone', count: 2000 }, { defId: 'potion_l', count: 60 }],
+      items: [{ defId: 'stone', count: 2000 }, { defId: 'stone', count: 60 }],
       egg: true,
     },
   },
@@ -460,7 +460,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 12000000,
       exp: 10000000,
-      items: [{ defId: 'stone', count: 3200 }, { defId: 'potion_l', count: 80 }],
+      items: [{ defId: 'stone', count: 3200 }, { defId: 'stone', count: 80 }],
       egg: true,
     },
   },
@@ -477,7 +477,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 25000000,
       exp: 20000000,
-      items: [{ defId: 'stone', count: 5000 }, { defId: 'potion_l', count: 100 }],
+      items: [{ defId: 'stone', count: 5000 }, { defId: 'stone', count: 100 }],
       egg: true,
     },
   },
@@ -494,7 +494,7 @@ export const DUNGEONS: DungeonDef[] = [
     rewards: {
       gold: 60000000,
       exp: 50000000,
-      items: [{ defId: 'stone', count: 8000 }, { defId: 'potion_l', count: 150 }],
+      items: [{ defId: 'stone', count: 8000 }, { defId: 'stone', count: 150 }],
       egg: true,
     },
   },

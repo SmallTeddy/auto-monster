@@ -2,7 +2,7 @@ import type { BagItem, EquipSlot, Pet, Rarity, ShopSlot, Stats } from '../types'
 import { SPRITES, spriteByName } from '../assets'
 import { EQUIPS, getEquipDef } from '../data/catalog'
 import { RARITY_META, RARITY_ORDER, rollRarity } from './stats'
-import { chance, pick, randInt, uid, weighted } from './rng'
+import { pick, randInt, uid, weighted } from './rng'
 
 // ---------------- 敌人属性 ----------------
 export function enemyStats(level: number, boss: boolean, rarityMul = 1): Stats {
@@ -96,14 +96,11 @@ export function rollDrop(floor: number, dropBonus = 0, boss = false): BagItem | 
     return eq
   }
   const roll = Math.random()
-  const equipP = 0.16 + dropBonus
-  const potionP = 0.22
-  const stoneP = 0.16
+  const equipP = 0.24 + dropBonus
+  const stoneP = 0.22
   if (roll < equipP)
     return genEquip(floor)
-  if (roll < equipP + potionP)
-    return { uid: uid('it'), kind: 'consumable', defId: chance(0.7) ? 'potion_s' : 'potion_l', count: 1 }
-  if (roll < equipP + potionP + stoneP)
+  if (roll < equipP + stoneP)
     return { uid: uid('it'), kind: 'material', defId: 'stone', count: randInt(1, 2) }
   return null
 }
@@ -112,14 +109,15 @@ export function rollDrop(floor: number, dropBonus = 0, boss = false): BagItem | 
 export function genShopStock(level: number): ShopSlot[] {
   const slots: ShopSlot[] = []
   const floor = Math.max(1, level + randInt(-1, 2))
-  const firstRarity = rollRarity(floor, -0.3)
-  const secondRarity = rollRarity(floor, -0.4)
-  slots.push({ kind: 'equip', level: floor, rarity: firstRarity, equip: genEquip(floor, firstRarity) })
-  slots.push({ kind: 'equip', level: floor, rarity: secondRarity, equip: genEquip(floor, secondRarity) })
-  slots.push({ kind: 'consumable', defId: 'potion_s', level })
-  slots.push({ kind: 'consumable', defId: chance(0.5) ? 'potion_l' : 'potion_s', level })
-  slots.push({ kind: 'material', defId: 'stone', level })
-  slots.push({ kind: 'pet', level: Math.max(1, floor), rarity: rollPetRarity(0.1) })
+  // 12 个商品：4 件装备 + 3 组材料 + 5 只宠物
+  for (let i = 0; i < 4; i++) {
+    const r = rollRarity(floor, -0.2 + i * 0.05)
+    slots.push({ kind: 'equip', level: floor, rarity: r, equip: genEquip(floor, r) })
+  }
+  for (let i = 0; i < 3; i++)
+    slots.push({ kind: 'material', defId: 'stone', level })
+  for (let i = 0; i < 5; i++)
+    slots.push({ kind: 'pet', level: Math.max(1, floor), rarity: rollPetRarity(0.1 + i * 0.04) })
   return slots
 }
 
@@ -132,8 +130,6 @@ export function shopSlotPrice(slot: ShopSlot): number {
   }
   if (slot.kind === 'pet')
     return Math.round(80 * slot.level ** 1.2 * RARITY_META[slot.rarity ?? 'common'].mul * 0.9)
-  if (slot.kind === 'consumable')
-    return slot.defId === 'potion_l' ? 120 : 40
   return 25
 }
 

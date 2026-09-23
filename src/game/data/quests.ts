@@ -4,7 +4,7 @@ export const QUESTS: QuestDef[] = [
   // 日常
   {
     id: 'daily_battle', name: '好战分子', desc: '完成 5 场自动战斗', target: 5, event: 'battle', daily: true,
-    rewards: { gold: 120, exp: 60, item: { defId: 'potion_s', count: 1 } },
+    rewards: { gold: 120, exp: 60, stone: 2 },
   },
   {
     id: 'daily_enhance', name: '铁匠学徒', desc: '强化装备 1 次', target: 1, event: 'enhance', daily: true,

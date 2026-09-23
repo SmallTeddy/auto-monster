@@ -72,10 +72,11 @@
           </div>
           <button
             class="game-btn hero-start"
-            :disabled="!selected || (store.hasSave.value && !!profile)"
+            :disabled="!selected"
             @click="start"
           >
-            <span class="i-mdi-sword-cross mr-1" />{{ t('home.start') }}
+            <span class="i-mdi-sword-cross mr-1" />
+            {{ isSameHero ? t('home.continue') : t('home.start') }}
           </button>
         </section>
 
@@ -149,6 +150,8 @@ const profile = store.profile
 
 const selected = ref(store.hasSave.value ? profile.value!.heroId : HEROES[0].id)
 const selectedHero = computed(() => getHero(selected.value || HEROES[0].id))
+// 当前选中的角色是否与存档角色相同
+const isSameHero = computed(() => store.hasSave.value && profile.value!.heroId === selected.value)
 
 const decoNames = ['冰霜巨龙.png', '光谱龙.png', '狼.png', '巨型蟾蜍.png']
 const deco = decoNames.map((name, i) => ({
@@ -161,14 +164,27 @@ const deco = decoNames.map((name, i) => ({
   },
 }))
 
-function start() {
+async function start() {
   if (!selected.value)
     return
-  store.createSave(selected.value)
+  // 已有存档且选择了不同角色：确认后以新角色重新开始（覆盖存档）
+  if (store.hasSave.value && !isSameHero.value) {
+    const ok = await store.confirm(`切换为【${selectedHero.value.name}】将覆盖当前存档并重新开始，是否继续？`)
+    if (!ok)
+      return
+    store.deleteSave()
+  }
+  if (isSameHero.value) {
+    // 同角色继续游戏
+    store.continueRun()
+  }
+  else {
+    store.createSave(selected.value)
+  }
   router.push('/battle')
 }
 function continueGame() {
-  store.startRun()
+  store.continueRun()
   router.push('/battle')
 }
 async function resetSave() {

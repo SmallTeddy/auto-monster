@@ -70,9 +70,7 @@ function defaultProfile(heroId: string): Profile {
     gold: 200,
     soul: 0,
     stone: 5,
-    bag: [
-      { uid: uid('it'), kind: 'consumable', defId: 'potion_s', count: 3 },
-    ],
+    bag: [],
     equipped: {},
     slotEnhance: { weapon: 0, armor: 0, accessory: 0 },
     pets: [starter],
@@ -498,7 +496,8 @@ export const useGlobalState = createGlobalState(() => {
       }
       else {
         const def = item.kind === 'consumable' ? getConsumableDef(item.defId) : getMaterialDef(item.defId)
-        const total = def.price * item.count
+        const price = def?.price ?? 10
+        const total = price * item.count
         pf.gold += total
         toast(`+${total} 金币`, 'success')
       }
@@ -615,33 +614,6 @@ export const useGlobalState = createGlobalState(() => {
     pf.gold -= cost
     pf.bagCap = Math.min(BAG_MAX_CAP, pf.bagCap + BAG_SLOT_STEP)
     toast(`背包容量提升至 ${pf.bagCap}`, 'success')
-    return true
-  }
-
-  function usePotion(itemUid?: string): boolean {
-    const pf = p()
-    const hero = run.units.find(u => u.side === 'hero')
-    const item = itemUid
-      ? pf.bag.find(b => b.uid === itemUid)
-      : pf.bag.find(b => b.kind === 'consumable' && b.defId === 'potion_s')
-        ?? pf.bag.find(b => b.kind === 'consumable' && b.defId === 'potion_l')
-    if (!item || item.kind !== 'consumable')
-      return false
-    if (!hero || !hero.alive) {
-      toast('仅能在战斗中使用药水', 'error')
-      return false
-    }
-    const def = getConsumableDef(item.defId)
-    const heal = Math.round(hero.maxHp * (def.heal ?? 0) * (1 - (hero.healReduce ?? 0)))
-    hero.hp = Math.min(hero.maxHp, hero.hp + heal)
-    run.floats.push({ id: Date.now(), uid: hero.id, text: `+${heal}`, crit: false })
-    pushLog(`${def.name}：恢复 ${heal} 生命`, 'heal')
-    item.count -= 1
-    if (item.count <= 0) {
-      const idx = pf.bag.findIndex(b => b.uid === item.uid)
-      if (idx !== -1)
-        pf.bag.splice(idx, 1)
-    }
     return true
   }
 
@@ -1251,7 +1223,7 @@ export const useGlobalState = createGlobalState(() => {
     createSave, deleteSave, toggleLang, toggleAutoRecycle, toggleAutoSell, updateAutoCfg, refreshDaily, DAILY_REFRESH_COST,
     questProgress, claimableCount, claimQuest,
     syncStamina, buyStamina, STAMINA_BUY_COST, STAMINA_BUY_AMOUNT, gainExp, addItem, addPet,
-    sortBag, sellItem, recycleItem, sellAllEquips, recycleAllEquips, buyBagSlot, bagSlotCost, BAG_MAX_CAP, usePotion,
+    sortBag, sellItem, recycleItem, sellAllEquips, recycleAllEquips, buyBagSlot, bagSlotCost, BAG_MAX_CAP,
     equipItem, unequipItem, enhanceItem, upgradeItem, MAX_ENHANCE,
     refreshShop, refreshShopToGoldOrRed, SHOP_REFRESH_COST, buyShop,
     deployPet, withdrawPet, trainPet, petSellPrice, sellPet, recyclePet, petUpgradeCost, upgradePetRarity,

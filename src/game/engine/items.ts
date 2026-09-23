@@ -6,7 +6,7 @@ export function itemName(item: BagItem): string {
   if (item.kind === 'equip')
     return getEquipDef(item.defId).name
   if (item.kind === 'consumable')
-    return getConsumableDef(item.defId).name
+    return getConsumableDef(item.defId)?.name ?? '消耗品'
   return getMaterialDef(item.defId).name
 }
 
@@ -16,7 +16,7 @@ export function itemIcon(item: BagItem): string {
     return slot === 'weapon' ? 'i-mdi-sword' : slot === 'armor' ? 'i-mdi-shield' : 'i-mdi-diamond-outline'
   }
   if (item.kind === 'consumable')
-    return getConsumableDef(item.defId).icon
+    return getConsumableDef(item.defId)?.icon ?? 'i-mdi-bottle-outline'
   return getMaterialDef(item.defId).icon
 }
 
@@ -35,7 +35,7 @@ export function itemDesc(item: BagItem): string {
     return parts.join('  ')
   }
   if (item.kind === 'consumable')
-    return getConsumableDef(item.defId).desc
+    return getConsumableDef(item.defId)?.desc ?? ''
   return getMaterialDef(item.defId).desc
 }
 
