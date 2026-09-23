@@ -110,8 +110,10 @@ export function rollDrop(floor: number, dropBonus = 0, boss = false): BagItem | 
 export function genShopStock(level: number): ShopSlot[] {
   const slots: ShopSlot[] = []
   const floor = Math.max(1, level + randInt(-1, 2))
-  slots.push({ kind: 'equip', level: floor, rarity: rollRarity(floor, -0.3), equip: genEquip(floor, rollRarity(floor, -0.3)) })
-  slots.push({ kind: 'equip', level: floor, rarity: rollRarity(floor, -0.4), equip: genEquip(floor, rollRarity(floor, -0.4)) })
+  const firstRarity = rollRarity(floor, -0.3)
+  const secondRarity = rollRarity(floor, -0.4)
+  slots.push({ kind: 'equip', level: floor, rarity: firstRarity, equip: genEquip(floor, firstRarity) })
+  slots.push({ kind: 'equip', level: floor, rarity: secondRarity, equip: genEquip(floor, secondRarity) })
   slots.push({ kind: 'consumable', defId: 'potion_s', level })
   slots.push({ kind: 'consumable', defId: chance(0.5) ? 'potion_l' : 'potion_s', level })
   slots.push({ kind: 'material', defId: 'stone', level })

@@ -749,20 +749,27 @@ export const useGlobalState = createGlobalState(() => {
       return
     }
     if (slot.kind === 'equip') {
-      if (pf.bag.length >= pf.bagCap) {
+      if (!slot.equip) {
+        toast('商品数据无效', 'error')
+        return
+      }
+      slot.equip.rarity = slot.rarity ?? slot.equip.rarity
+      if (!stackIntoBag(pf.bag, slot.equip, pf.bagCap)) {
         toast('背包已满', 'error')
         return
       }
       pf.gold -= price
-      pf.bag.push(slot.equip!)
     }
     else if (slot.kind === 'material') {
       pf.gold -= price
       pf.stone += 1
     }
     else {
+      if (!stackIntoBag(pf.bag, { uid: uid('it'), kind: slot.kind, defId: slot.defId!, count: 1 }, pf.bagCap)) {
+        toast('背包已满', 'error')
+        return
+      }
       pf.gold -= price
-      addItem({ uid: uid('it'), kind: slot.kind, defId: slot.defId!, count: 1 })
     }
     pf.shop.sold[index] = true
     track('shopBuy', 1)
