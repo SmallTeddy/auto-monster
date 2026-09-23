@@ -55,6 +55,19 @@
             >
               {{ pet.train >= 10 ? t('pet.trainMax') : t('common.train') }} {{ trainCost(pet) }}
             </button>
+            <button
+              class="game-btn-purple py-1 text-12px"
+              :disabled="!petUpgradeInfo(pet).can"
+              @click="store.upgradePetRarity(pet.uid)"
+            >
+              <template v-if="petUpgradeInfo(pet).next">
+                升阶 <span :style="{ color: rarityColorByRarity(petUpgradeInfo(pet).next!) }">{{ t(`rarity.${petUpgradeInfo(pet).next}`) }}</span>
+              </template>
+              <template v-else>品阶 MAX</template>
+            </button>
+            <div v-if="petUpgradeInfo(pet).can" class="col-span-2 text-center text-10px text-white/45">
+              {{ petUpgradeInfo(pet).gold }}金 / {{ petUpgradeInfo(pet).soul }}结晶
+            </div>
             <button class="game-btn-ghost py-1 text-12px" @click="store.sellPet(pet.uid)">
               <span class="i-mdi-cash-multiple" />
               <span>{{ t('common.sell') }}</span>
@@ -72,7 +85,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Pet } from '@/game/types'
+import type { Pet, Rarity } from '@/game/types'
 import { RARITY_META, boonsToBonus, petCombatStats, petExpNeed } from '@/game/engine/stats'
 import ModalPanel from './ModalPanel.vue'
 import Sprite from './Sprite.vue'
@@ -88,6 +101,9 @@ const deployedCount = computed(() => pf.value!.pets.filter(p => p.deployed).leng
 function rarityColor(pet: Pet) {
   return RARITY_META[pet.rarity].color
 }
+function rarityColorByRarity(r: Rarity) {
+  return RARITY_META[r].color
+}
 function petStats(pet: Pet) {
   return petCombatStats(pet, boonsToBonus(pf.value!.boons))
 }
@@ -96,5 +112,12 @@ function petXpPct(pet: Pet) {
 }
 function trainCost(pet: Pet) {
   return 60 * pet.level * (pet.train + 1)
+}
+function petUpgradeInfo(pet: Pet) {
+  const next = RARITY_META[pet.rarity].next
+  if (!next)
+    return { can: false, next: undefined as Rarity | undefined, gold: 0, soul: 0 }
+  const cost = store.petUpgradeCost(pet)
+  return { can: !!cost, next, gold: cost?.gold ?? 0, soul: cost?.soul ?? 0 }
 }
 </script>

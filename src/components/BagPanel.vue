@@ -4,8 +4,9 @@
       <span class="text-12px text-white/50">
         {{ t('bag.capacity') }} {{ pf.bag.length }}/{{ pf.bagCap }}
       </span>
-      <!-- 购买背包容量 -->
+      <!-- 购买背包容量（达到最大容量时隐藏） -->
       <button
+        v-if="pf.bagCap < store.BAG_MAX_CAP"
         class="ml-2 rounded-lg bg-emerald-500/20 px-2 py-1 text-12px text-emerald-300 hover:bg-emerald-500/30"
         :title="`花费 ${store.bagSlotCost()} 金币扩充 5 格背包`"
         @click="store.buyBagSlot()"

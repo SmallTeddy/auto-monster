@@ -5,8 +5,9 @@ import { createEnemyUnit } from './battle'
 import { clamp, pick, randInt, uid } from './rng'
 
 function tierRange(floor: number): [number, number] {
-  const min = clamp(1 + Math.floor((floor - 1) / 8), 1, 4)
-  return [min, Math.min(5, min + 1)]
+  // 层数上限 99999，tier 随层数缓慢提升
+  const min = clamp(1 + Math.floor((floor - 1) / 8), 1, 10)
+  return [min, Math.min(12, min + 2)]
 }
 
 /** 生成无尽魔塔某一层的敌人 */
@@ -20,7 +21,8 @@ export function genTowerWave(floor: number): BattleUnit[] {
     units.push(createEnemyUnit(floor + 1, sp, true))
   }
   else {
-    const count = Math.min(12, 1 + Math.floor(floor / 4))
+    // 非首领层固定 12 只怪兽
+    const count = 12
     const pool = mobPool(tMin, tMax)
     const chosen = new Set<string>()
     for (let i = 0; i < count; i++) {
@@ -33,7 +35,7 @@ export function genTowerWave(floor: number): BattleUnit[] {
           break
         }
       }
-      sp ??= pool[0]
+      sp ??= pool[i % pool.length]
       if (sp)
         units.push(createEnemyUnit(floor + randInt(0, 1), sp, false))
     }

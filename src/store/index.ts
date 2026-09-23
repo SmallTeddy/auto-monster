@@ -77,7 +77,12 @@ function defaultProfile(heroId: string): Profile {
     slotEnhance: { weapon: 0, armor: 0, accessory: 0 },
     pets: [starter],
     bestFloor: 0,
+    lastBoonFloor: 0,
     boons: [],
+    runFloor: 1,
+    runMode: 'tower',
+    runDungeonDefId: '',
+    runDungeonWave: 0,
     bagCap: 30,
     shop: { stock: genShopStock(1), sold: [false, false, false, false, false, false], refreshCount: 0 },
     daily: { date: todayStr(), progress: {}, claimed: {}, refreshCount: 0 },
@@ -156,6 +161,16 @@ export const useGlobalState = createGlobalState(() => {
       pf.autoSellCfg = { enabled: false, minLevel: 1, maxLevel: 999, rarities: ['common'] }
     if (pf.bagCap === undefined)
       pf.bagCap = BAG_CAP
+    if (pf.lastBoonFloor === undefined)
+      pf.lastBoonFloor = 0
+    if (pf.runFloor === undefined)
+      pf.runFloor = 1
+    if (pf.runMode === undefined)
+      pf.runMode = 'tower'
+    if (pf.runDungeonDefId === undefined)
+      pf.runDungeonDefId = ''
+    if (pf.runDungeonWave === undefined)
+      pf.runDungeonWave = 0
   }
 
   const toasts = ref<Toast[]>([])
@@ -378,15 +393,22 @@ export const useGlobalState = createGlobalState(() => {
   }
 
   // ---------------- 经验 / 物品 ----------------
+  const MAX_LEVEL = 999
   function gainExp(amount: number) {
     const pf = p()
+    if (pf.level >= MAX_LEVEL) {
+      pf.exp = 0
+      return
+    }
     pf.exp += amount
-    while (pf.exp >= expNeed(pf.level)) {
+    while (pf.exp >= expNeed(pf.level) && pf.level < MAX_LEVEL) {
       pf.exp -= expNeed(pf.level)
       pf.level += 1
       track('level', pf.level, 'max')
       toast(`角色升到 ${pf.level} 级！`, 'success')
     }
+    if (pf.level >= MAX_LEVEL)
+      pf.exp = 0
   }
 
   // 判断装备是否命中自动处理配置
@@ -513,50 +535,61 @@ export const useGlobalState = createGlobalState(() => {
     toast(`回收获得 ${gain.stone} 强化石、${gain.soul} 结晶`, 'success')
   }
 
-  /** 一键出售背包中所有非装备（消耗品/材料）及可选装备 */
+  /** 判断装备是否命中自动处理配置（仅等级+品阶，不受 enabled 开关影响，供一键出售/回收使用） */
+  function matchAutoCfgRange(item: BagItem, cfg: AutoHandleCfg): boolean {
+    if (item.kind !== 'equip')
+      return false
+    const lv = item.itemLevel ?? 1
+    if (lv < cfg.minLevel || lv > cfg.maxLevel)
+      return false
+    return cfg.rarities.includes(item.rarity ?? 'common')
+  }
+
+  /** 一键出售背包中命中自动出售配置的装备 */
   function sellAllEquips() {
     const pf = p()
     const before = pf.bag.length
     let gold = 0
+    let cnt = 0
     pf.bag = pf.bag.filter((it) => {
-      if (it.kind === 'equip') {
+      if (it.kind === 'equip' && matchAutoCfgRange(it, pf.autoSellCfg)) {
         gold += sellPrice(it)
+        cnt += 1
         return false
       }
       return true
     })
     pf.gold += gold
-    const cnt = before - pf.bag.length
     if (cnt > 0)
       toast(`一键出售 ${cnt} 件装备，+${gold} 金币`, 'success')
     else
-      toast('背包中没有装备', 'info')
+      toast('没有命中自动出售范围的装备', 'info')
   }
 
-  /** 一键回收背包中所有装备 */
+  /** 一键回收背包中命中自动回收配置的装备 */
   function recycleAllEquips() {
     const pf = p()
-    const before = pf.bag.length
     let stone = 0
     let soul = 0
+    let cnt = 0
     pf.bag = pf.bag.filter((it) => {
-      if (it.kind === 'equip') {
+      if (it.kind === 'equip' && matchAutoCfgRange(it, pf.autoRecycleCfg)) {
         const g = recycleGain(it)
         stone += g.stone
         soul += g.soul
+        cnt += 1
         return false
       }
       return true
     })
     pf.stone += stone
     pf.soul += soul
-    const cnt = before - pf.bag.length
     if (cnt > 0) {
       track('recycle', cnt)
       toast(`一键回收 ${cnt} 件装备，+${stone} 强化石、+${soul} 结晶`, 'success')
     }
     else {
-      toast('背包中没有装备', 'info')
+      toast('没有命中自动回收范围的装备', 'info')
     }
   }
 
@@ -716,18 +749,46 @@ export const useGlobalState = createGlobalState(() => {
   }
 
   // ---------------- 商店 ----------------
+  const SHOP_REFRESH_COST = 1000
   function refreshShop() {
     const pf = p()
-    const cost = Math.min(200, 25 * (pf.shop.refreshCount + 1))
-    if (pf.gold < cost) {
+    if (pf.gold < SHOP_REFRESH_COST) {
       toast(i18n.global.t('bag.goldLack'), 'error')
       return
     }
-    pf.gold -= cost
+    pf.gold -= SHOP_REFRESH_COST
     pf.shop.refreshCount += 1
     pf.shop.stock = genShopStock(pf.level)
     pf.shop.sold = pf.shop.stock.map(() => false)
     toast(i18n.global.t('shop.refreshed'), 'success')
+  }
+
+  /** 一键刷新商店直到出现金色(legendary)或红色宠物，自动消耗金币 */
+  function refreshShopToGoldOrRed(): { ok: boolean, spent: number, tries: number } {
+    const pf = p()
+    let spent = 0
+    let tries = 0
+    const maxTries = 200
+    while (tries < maxTries) {
+      if (pf.gold < SHOP_REFRESH_COST) {
+        toast('金币不足，停止刷新', 'error')
+        return { ok: false, spent, tries }
+      }
+      pf.gold -= SHOP_REFRESH_COST
+      spent += SHOP_REFRESH_COST
+      pf.shop.refreshCount += 1
+      pf.shop.stock = genShopStock(pf.level)
+      pf.shop.sold = pf.shop.stock.map(() => false)
+      tries += 1
+      // 检查宠物槽位是否为金色或红色
+      const petSlot = pf.shop.stock.find(s => s.kind === 'pet')
+      if (petSlot && (petSlot.rarity === 'legendary' || petSlot.rarity === 'red')) {
+        toast(`刷新 ${tries} 次后出现 ${petSlot.rarity === 'red' ? '红色' : '金色'} 宠物！`, 'success')
+        return { ok: true, spent, tries }
+      }
+    }
+    toast(`已刷新 ${tries} 次仍未出现金色/红色宠物`, 'info')
+    return { ok: false, spent, tries }
   }
 
   function buyShop(index: number) {
@@ -829,10 +890,43 @@ export const useGlobalState = createGlobalState(() => {
     if (idx === -1)
       return
     const [pet] = pf.pets.splice(idx, 1)
-    const soul = [3, 7, 18, 40][RARITY_ORDER.indexOf(pet.rarity)]
+    const soulTable = [3, 7, 18, 40, 90]
+    const soul = soulTable[RARITY_ORDER.indexOf(pet.rarity)] ?? 3
     pf.soul += soul
     track('recycle', 1)
     toast(`回收获得 ${soul} 结晶`, 'success')
+  }
+
+  /** 宠物品阶升级消耗（按当前品阶） */
+  function petUpgradeCost(pet: Pet): { gold: number, soul: number } | null {
+    const next = RARITY_META[pet.rarity].next
+    if (!next)
+      return null
+    const idx = RARITY_ORDER.indexOf(pet.rarity)
+    const goldTable = [200, 800, 3000, 12000]
+    const soulTable = [8, 25, 70, 200]
+    return { gold: goldTable[idx] ?? 99999, soul: soulTable[idx] ?? 999 }
+  }
+  function upgradePetRarity(petUid: string): boolean {
+    const pf = p()
+    const pet = pf.pets.find(x => x.uid === petUid)
+    if (!pet)
+      return false
+    const next = RARITY_META[pet.rarity].next
+    if (!next) {
+      toast('宠物品阶已达最高', 'error')
+      return false
+    }
+    const cost = petUpgradeCost(pet)!
+    if (pf.gold < cost.gold || pf.soul < cost.soul) {
+      toast(i18n.global.t('bag.materialLack'), 'error')
+      return false
+    }
+    pf.gold -= cost.gold
+    pf.soul -= cost.soul
+    pet.rarity = next
+    toast(`宠物升至 ${i18n.global.t(`rarity.${next}`)} 品阶！`, 'success')
+    return true
   }
 
   // ---------------- 副本 ----------------
@@ -856,6 +950,9 @@ export const useGlobalState = createGlobalState(() => {
     run.mode = 'dungeon'
     run.dungeonDefId = id
     run.dungeonWave = 0
+    pf.runMode = 'dungeon'
+    pf.runDungeonDefId = id
+    pf.runDungeonWave = 0
     activePanel.value = ''
     loadDungeonWave()
   }
@@ -906,6 +1003,10 @@ export const useGlobalState = createGlobalState(() => {
     run.round = 0
     run.status = 'fighting'
     run.floats = []
+    const pf = p()
+    pf.runMode = 'dungeon'
+    pf.runDungeonDefId = run.dungeonDefId
+    pf.runDungeonWave = run.dungeonWave
   }
   function nextDungeonWave() {
     const def = dungeonDef(run.dungeonDefId)
@@ -936,18 +1037,47 @@ export const useGlobalState = createGlobalState(() => {
     run.round = 0
     run.status = 'fighting'
     run.floats = []
+    p().runFloor = run.floor
+    p().runMode = 'tower'
+    p().runDungeonDefId = ''
+    p().runDungeonWave = 0
   }
 
   function startRun() {
+    const pf = p()
+    // 主动/死亡重开：从第 1 层开始，但祝福等永久成长保留
+    pf.runFloor = 1
+    pf.runMode = 'tower'
+    pf.runDungeonDefId = ''
+    pf.runDungeonWave = 0
     run.started = true
     run.mode = 'tower'
     run.floor = 1
+    run.dungeonDefId = ''
+    run.dungeonWave = 0
     run.goldGained = 0
     run.logs = []
     run.boonOffer = []
-    // 祝福（boons）与等级、宠物一样属于永久成长，跨次冒险保留
     loadTowerWave()
     pushLog('冒险开始！无尽魔塔第 1 层', 'sys')
+  }
+
+  /** 刷新页面后从存档恢复当前层数 */
+  function continueRun() {
+    const pf = p()
+    run.started = true
+    run.mode = pf.runMode
+    run.floor = pf.runFloor
+    run.dungeonDefId = pf.runDungeonDefId
+    run.dungeonWave = pf.runDungeonWave
+    run.goldGained = 0
+    run.logs = []
+    run.boonOffer = []
+    if (run.mode === 'dungeon' && run.dungeonDefId)
+      loadDungeonWave()
+    else
+      loadTowerWave()
+    pushLog(run.mode === 'dungeon' ? `继续副本【${dungeonDef(run.dungeonDefId).name}】` : `冒险继续！无尽魔塔第 ${run.floor} 层`, 'sys')
   }
 
   function nextTowerFloor() {
@@ -957,7 +1087,10 @@ export const useGlobalState = createGlobalState(() => {
   }
 
   function chooseBoon(boonId: string) {
-    p().boons.push(boonId)
+    const pf = p()
+    pf.boons.push(boonId)
+    // 记录已领取祝福的最高层数，重开后不再重复领取
+    pf.lastBoonFloor = Math.max(pf.lastBoonFloor, run.floor)
     run.boonOffer = []
     nextTowerFloor()
   }
@@ -1051,7 +1184,8 @@ export const useGlobalState = createGlobalState(() => {
       const reward = settleTowerVictory()
       run.lastReward = reward
       pushLog(`第 ${run.floor} 层胜利！+${reward.gold} 金币 +${reward.exp} 经验`, 'reward')
-      if (run.floor % 5 === 0) {
+      // 每 5 层首领层可领取祝福，但已领取过的层数不再重复领取
+      if (run.floor % 5 === 0 && run.floor > p().lastBoonFloor) {
         run.boonOffer = genBoonOffer(p().boons)
         run.status = 'boon'
       }
@@ -1117,12 +1251,12 @@ export const useGlobalState = createGlobalState(() => {
     createSave, deleteSave, toggleLang, toggleAutoRecycle, toggleAutoSell, updateAutoCfg, refreshDaily, DAILY_REFRESH_COST,
     questProgress, claimableCount, claimQuest,
     syncStamina, buyStamina, STAMINA_BUY_COST, STAMINA_BUY_AMOUNT, gainExp, addItem, addPet,
-    sortBag, sellItem, recycleItem, sellAllEquips, recycleAllEquips, buyBagSlot, bagSlotCost, usePotion,
+    sortBag, sellItem, recycleItem, sellAllEquips, recycleAllEquips, buyBagSlot, bagSlotCost, BAG_MAX_CAP, usePotion,
     equipItem, unequipItem, enhanceItem, upgradeItem, MAX_ENHANCE,
-    refreshShop, buyShop,
-    deployPet, withdrawPet, trainPet, petSellPrice, sellPet, recyclePet,
+    refreshShop, refreshShopToGoldOrRed, SHOP_REFRESH_COST, buyShop,
+    deployPet, withdrawPet, trainPet, petSellPrice, sellPet, recyclePet, petUpgradeCost, upgradePetRarity,
     dungeonDef, enterDungeon, sweepDungeon, nextDungeonWave, abandonDungeon, exitToTower,
-    startRun, nextTowerFloor, chooseBoon, battleTick,
+    startRun, continueRun, nextTowerFloor, chooseBoon, battleTick,
     castSkill, heroActiveSkill, heroSkillCd,
     track, STAMINA_MAX,
   }

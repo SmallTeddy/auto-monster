@@ -43,6 +43,54 @@ export const QUESTS: QuestDef[] = [
     id: 'ach_recycle', name: '循环利用', desc: '累计回收 10 件物品', target: 10, event: 'recycle', daily: false,
     rewards: { gold: 300, soul: 20 },
   },
+  {
+    id: 'ach_floor50', name: '高塔攀登者', desc: '无尽魔塔到达第 50 层', target: 50, event: 'floor', daily: false,
+    rewards: { gold: 5000, soul: 30, stone: 20 },
+  },
+  {
+    id: 'ach_floor100', name: '百层征服者', desc: '无尽魔塔到达第 100 层', target: 100, event: 'floor', daily: false,
+    rewards: { gold: 15000, soul: 80, stone: 50 },
+  },
+  {
+    id: 'ach_floor200', name: '魔塔之主', desc: '无尽魔塔到达第 200 层', target: 200, event: 'floor', daily: false,
+    rewards: { gold: 50000, soul: 200, stone: 120 },
+  },
+  {
+    id: 'ach_floor500', name: '登峰造极', desc: '无尽魔塔到达第 500 层', target: 500, event: 'floor', daily: false,
+    rewards: { gold: 200000, soul: 500, stone: 300 },
+  },
+  {
+    id: 'ach_floor1000', name: '千层传说', desc: '无尽魔塔到达第 1000 层', target: 1000, event: 'floor', daily: false,
+    rewards: { gold: 1000000, soul: 1500, stone: 800 },
+  },
+  {
+    id: 'ach_level30', name: '初露锋芒', desc: '角色等级达到 30 级', target: 30, event: 'level', daily: false,
+    rewards: { gold: 3000, stone: 15 },
+  },
+  {
+    id: 'ach_level50', name: '身经百战', desc: '角色等级达到 50 级', target: 50, event: 'level', daily: false,
+    rewards: { gold: 8000, soul: 30, stone: 30 },
+  },
+  {
+    id: 'ach_level100', name: '百战之师', desc: '角色等级达到 100 级', target: 100, event: 'level', daily: false,
+    rewards: { gold: 30000, soul: 100, stone: 80 },
+  },
+  {
+    id: 'ach_dungeon5', name: '副本常客', desc: '累计通关副本 5 次', target: 5, event: 'dungeonClear', daily: false,
+    rewards: { gold: 1500, stone: 10 },
+  },
+  {
+    id: 'ach_dungeon20', name: '地下城专家', desc: '累计通关副本 20 次', target: 20, event: 'dungeonClear', daily: false,
+    rewards: { gold: 8000, soul: 40 },
+  },
+  {
+    id: 'ach_pets5', name: '宠物收藏家', desc: '同时拥有 5 只宠物', target: 5, event: 'petGain', daily: false,
+    rewards: { gold: 1500, exp: 500 },
+  },
+  {
+    id: 'ach_shop10', name: '购物达人', desc: '在商店购买 10 件商品', target: 10, event: 'shopBuy', daily: false,
+    rewards: { gold: 1000, stone: 5 },
+  },
 ]
 
 export const DAILY_QUESTS = QUESTS.filter(q => q.daily)

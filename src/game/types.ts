@@ -225,7 +225,17 @@ export interface Profile {
   slotEnhance: { weapon: number, armor: number, accessory: number }
   pets: Pet[]
   bestFloor: number
+  /** 已领取祝福的最高层数（每 5 层一次，刷新/重开后不再重复领取） */
+  lastBoonFloor: number
   boons: string[]
+  /** 持久化的冒险层数（刷新页面后恢复） */
+  runFloor: number
+  /** 持久化的冒险模式 */
+  runMode: 'tower' | 'dungeon'
+  /** 持久化的副本 ID */
+  runDungeonDefId: string
+  /** 持久化的副本波次 */
+  runDungeonWave: number
   /** 背包容量上限（可花费金币提升） */
   bagCap: number
   shop: { stock: ShopSlot[], sold: boolean[], refreshCount: number }

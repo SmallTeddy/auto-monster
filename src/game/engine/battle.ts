@@ -18,11 +18,11 @@ export function createEnemyUnit(level: number, sprite: MonsterSprite, boss: bool
   // 高难度怪物能力：随等级增长，Boss 更强
   const tier = Math.min(1, lv / 40)
   const shieldMax = boss
-    ? Math.round(s.hp * (0.35 + tier * 0.25))
-    : Math.round(s.hp * (0.08 + tier * 0.18))
+    ? Math.round(s.hp * (0.45 + tier * 0.35))
+    : Math.round(s.hp * (0.12 + tier * 0.25))
   const shieldRegen = boss
-    ? Math.round(s.hp * (0.04 + tier * 0.03))
-    : Math.round(s.hp * (0.015 + tier * 0.025))
+    ? Math.round(s.hp * (0.05 + tier * 0.04))
+    : Math.round(s.hp * (0.02 + tier * 0.03))
   return makeUnit({
     name: boss ? sprite.name : sprite.name,
     sprite: sprite.url,
@@ -33,16 +33,16 @@ export function createEnemyUnit(level: number, sprite: MonsterSprite, boss: bool
     atk: s.atk,
     def: s.def,
     spd: s.spd,
-    crit: 0.08 + tier * 0.12,
-    lifesteal: boss ? 0.15 + tier * 0.1 : tier * 0.05,
-    doubleHit: boss ? 0.25 + tier * 0.15 : tier * 0.1,
+    crit: 0.1 + tier * 0.15,
+    lifesteal: boss ? 0.2 + tier * 0.12 : tier * 0.07,
+    doubleHit: boss ? 0.3 + tier * 0.18 : tier * 0.13,
     regen: 0,
     boss,
     shield: shieldMax,
     shieldRegen,
-    pctDmgChance: boss ? 0.35 + tier * 0.25 : 0.06 + tier * 0.18,
-    pctDmgPower: boss ? 0.08 + tier * 0.06 : 0.04 + tier * 0.05,
-    healReduceTurns: boss ? 2 : 1,
+    pctDmgChance: boss ? 0.5 + tier * 0.3 : 0.12 + tier * 0.28,
+    pctDmgPower: boss ? 0.12 + tier * 0.08 : 0.06 + tier * 0.07,
+    healReduceTurns: boss ? 3 : 2,
   })
 }
 
@@ -143,9 +143,9 @@ function attack(attacker: BattleUnit, foes: BattleUnit[], events: BattleEvents) 
       isCrit ? 'crit' : 'hit',
     )
     // 敌人攻击附加减治疗 debuff
-    if (attacker.side === 'enemy' && target.side !== 'enemy' && chance(0.3)) {
-      target.healReduce = Math.min(0.8, (target.healReduce ?? 0) + 0.3)
-      target.healReduceTurns = (target.healReduceTurns ?? 0) + (attacker.healReduceTurns ?? 1)
+    if (attacker.side === 'enemy' && target.side !== 'enemy' && chance(0.45)) {
+      target.healReduce = Math.min(0.85, (target.healReduce ?? 0) + 0.35)
+      target.healReduceTurns = (target.healReduceTurns ?? 0) + (attacker.healReduceTurns ?? 2)
       addLog(events.logs, `${target.name} 被施加了治疗削减效果`, 'hit')
     }
     if (attacker.lifesteal > 0) {

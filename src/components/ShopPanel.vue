@@ -10,7 +10,17 @@
           aria-label="刷新商店"
           @click="store.refreshShop()"
         >
-          <span class="i-mdi-refresh mr-1" />{{ t('shop.refreshCost', { cost: refreshCost }) }}
+          <span class="i-mdi-refresh mr-1" />{{ t('shop.refreshCost', { cost: store.SHOP_REFRESH_COST }) }}
+        </button>
+        <button
+          class="game-btn-ghost"
+          :class="{ invisible: tab !== 'buy', 'pointer-events-none': tab !== 'buy' }"
+          :disabled="tab !== 'buy'"
+          title="自动刷新直到出现金色或红色宠物"
+          aria-label="一键刷新至金/红"
+          @click="store.refreshShopToGoldOrRed()"
+        >
+          <span class="i-mdi-auto-fix mr-1" />刷至金/红
         </button>
         <div class="flex rounded-lg bg-black/40 p-0.5 text-12px">
           <button class="rounded-md px-3 py-1" :class="tab === 'buy' ? 'bg-primary text-black font-semibold' : 'text-white/60'" @click="tab = 'buy'">{{ t('shop.buyTab') }}</button>
@@ -77,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import type { ShopSlot } from '@/game/types'
 import { RARITY_META } from '@/game/engine/stats'
 import { shopSlotPrice } from '@/game/engine/loot'
@@ -92,8 +102,6 @@ const { t } = useI18n()
 const store = useGlobalState()
 const pf = store.profile
 const tab = ref<'buy' | 'sell'>('buy')
-
-const refreshCost = computed(() => Math.min(200, 25 * (pf.value!.shop.refreshCount + 1)))
 
 function slotColor(slot: ShopSlot): string {
   return slot.rarity ? RARITY_META[slot.rarity].color : '#e5e7eb'

@@ -241,8 +241,14 @@ onMounted(() => {
     router.replace('/')
     return
   }
-  if (!run.started || run.status === 'idle')
-    store.startRun()
+  if (!run.started || run.status === 'idle') {
+    // 刷新页面：若存档中保存了层数（>1），则恢复；否则从第 1 层开始
+    const savedFloor = pf.value!.runFloor ?? 1
+    if (savedFloor > 1)
+      store.continueRun()
+    else
+      store.startRun()
+  }
 })
 
 // 自动战斗心跳（倍速控制间隔）

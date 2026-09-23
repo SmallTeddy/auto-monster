@@ -8,20 +8,20 @@ import { chance, pick, randInt, uid, weighted } from './rng'
 export function enemyStats(level: number, boss: boolean, rarityMul = 1): Stats {
   const lv = Math.max(1, level)
   const s: Stats = {
-    hp: Math.round(70 * lv ** 1.3),
-    atk: Math.round(10 + lv * 3.2),
-    def: Math.round(lv * 1.25),
-    spd: Math.round((7 + lv * 0.25) * 10) / 10,
+    hp: Math.round(110 * lv ** 1.45),
+    atk: Math.round(14 + lv * 4.6),
+    def: Math.round(lv * 1.8),
+    spd: Math.round((7 + lv * 0.28) * 10) / 10,
   }
   const v = 0.9 + Math.random() * 0.2
   s.hp = Math.round(s.hp * v * rarityMul)
   s.atk = Math.round(s.atk * v * rarityMul)
   s.def = Math.round(s.def * v * rarityMul)
   if (boss) {
-    s.hp = Math.round(s.hp * 5)
-    s.atk = Math.round(s.atk * 2.2)
-    s.def = Math.round(s.def * 2.1)
-    s.spd = Math.round(s.spd * 1.2 * 10) / 10
+    s.hp = Math.round(s.hp * 6)
+    s.atk = Math.round(s.atk * 2.6)
+    s.def = Math.round(s.def * 2.4)
+    s.spd = Math.round(s.spd * 1.25 * 10) / 10
   }
   return s
 }
@@ -44,18 +44,20 @@ export function genEquip(floor: number, rarity?: Rarity, slot?: EquipSlot): BagI
 
 // ---------------- 宠物生成 ----------------
 const PET_RARITY_WEIGHT: [Rarity, number][] = [
-  ['common', 62],
+  ['common', 58],
   ['rare', 27],
-  ['epic', 9],
-  ['legendary', 2],
+  ['epic', 10],
+  ['legendary', 4],
+  ['red', 1],
 ]
 
 export function rollPetRarity(luck = 0): Rarity {
   return weighted<Rarity>([
-    ['common', Math.max(15, 62 - luck * 20)],
+    ['common', Math.max(12, 58 - luck * 22)],
     ['rare', 27 + luck * 10],
-    ['epic', 9 + luck * 7],
-    ['legendary', 2 + luck * 3],
+    ['epic', 10 + luck * 7],
+    ['legendary', 4 + luck * 3],
+    ['red', Math.max(0.3, 1 + luck * 2)],
   ])
 }
 
