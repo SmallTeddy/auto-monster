@@ -39,28 +39,26 @@
     </div>
 
     <!-- 购买 -->
-    <div v-if="tab === 'buy'" class="grid grid-cols-2 gap-3">
+    <div v-if="tab === 'buy'" class="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
       <div
         v-for="(slot, i) in pf.shop.stock"
         :key="i"
-        class="relative flex flex-col rounded-xl border border-white/10 bg-white/5 p-3"
+        class="relative flex flex-col rounded-lg border border-white/10 bg-white/5 p-2"
         :style="slotBorder(slot)"
       >
-        <div v-if="pf.shop.sold[i]" class="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-black/70 text-14px font-bold text-white/50">
+        <div v-if="pf.shop.sold[i]" class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-black/70 text-12px font-bold text-white/50">
           {{ t('shop.soldOut') }}
         </div>
-        <div class="mb-2 flex items-center gap-2">
-          <span :class="slotIcon(slot)" class="text-28px" :style="{ color: slotColor(slot) }" />
-          <div class="min-w-0">
-            <div class="truncate text-13px font-bold" :style="{ color: slotColor(slot) }">{{ slotTitle(slot) }}</div>
-            <div class="text-10px text-white/45">{{ slotSub(slot) }}</div>
-          </div>
+        <div class="mb-1.5 flex flex-col items-center text-center">
+          <span :class="slotIcon(slot)" class="text-24px" :style="{ color: slotColor(slot) }" />
+          <div class="mt-0.5 truncate text-11px font-bold" :style="{ color: slotColor(slot) }">{{ slotTitle(slot) }}</div>
+          <div class="text-9px text-white/45">{{ slotSub(slot) }}</div>
         </div>
-        <div class="mb-1 min-h-30px flex-1 text-11px leading-4 text-green-300/80">
+        <div class="mb-1 min-h-20px flex-1 text-center text-10px leading-3 text-green-300/80">
           {{ slotDesc(slot) }}
         </div>
-        <button class="game-btn w-full" :disabled="pf.shop.sold[i]" @click="store.buyShop(i)">
-          <span class="i-mdi-cash-multiple mr-1" />{{ shopSlotPrice(slot) }}
+        <button class="game-btn w-full py-1 text-11px" :disabled="pf.shop.sold[i]" @click="store.buyShop(i)">
+          <span class="i-mdi-cash-multiple mr-0.5" />{{ shopSlotPrice(slot) }}
         </button>
       </div>
     </div>
