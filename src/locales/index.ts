@@ -99,6 +99,8 @@ const zhCN = {
     noPotion: '没有药水',
     runOver: '本次冒险结束',
     reachedFloor: '到达层数',
+    autoRestartIn: '自动重新开始',
+    autoBackIn: '自动返回',
   },
   nav: {
     bag: '背包',
@@ -271,6 +273,8 @@ const enUS: MessageSchema = {
     noPotion: 'No Potion',
     runOver: 'Run Over',
     reachedFloor: 'Floor Reached',
+    autoRestartIn: 'Auto restart in',
+    autoBackIn: 'Auto back in',
   },
   nav: {
     bag: 'Bag',

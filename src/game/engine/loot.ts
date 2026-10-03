@@ -18,10 +18,12 @@ export function enemyStats(level: number, boss: boolean, rarityMul = 1): Stats {
   s.atk = Math.round(s.atk * v * rarityMul)
   s.def = Math.round(s.def * v * rarityMul)
   if (boss) {
-    s.hp = Math.round(s.hp * 6)
-    s.atk = Math.round(s.atk * 2.6)
-    s.def = Math.round(s.def * 2.4)
-    s.spd = Math.round(s.spd * 1.25 * 10) / 10
+    // Boss 倍率随等级平滑增长，前期（1级）显著弱于后期（40+级）
+    const tier = Math.min(1, lv / 40)
+    s.hp = Math.round(s.hp * (3 + tier * 3)) // 3x → 6x
+    s.atk = Math.round(s.atk * (1.6 + tier * 1.0)) // 1.6x → 2.6x
+    s.def = Math.round(s.def * (1.5 + tier * 0.9)) // 1.5x → 2.4x
+    s.spd = Math.round(s.spd * (1.1 + tier * 0.15) * 10) / 10 // 1.1x → 1.25x
   }
   return s
 }

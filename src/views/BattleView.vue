@@ -190,6 +190,9 @@
             <template v-else>{{ store.dungeonDef(run.dungeonDefId).name }}</template>
           </div>
           <div class="space-y-2">
+            <div v-if="deathCountdown > 0" class="text-12px text-white/45">
+              {{ run.status === 'runOver' ? t('battle.autoRestartIn') : t('battle.autoBackIn') }} {{ deathCountdown }}s
+            </div>
             <button v-if="run.status === 'runOver'" class="game-btn w-full py-2" @click="store.startRun()">
               <span class="i-mdi-restart mr-1" />{{ t('battle.restartRun') }}
             </button>
@@ -292,6 +295,36 @@ watch(() => run.status, (s) => {
   }
 })
 onUnmounted(clearBoonTimer)
+
+// 死亡后 5 秒自动重生：魔塔自动重开，副本自动退回魔塔
+const deathCountdown = ref(0)
+let deathTimer: ReturnType<typeof setInterval> | null = null
+function clearDeathTimer() {
+  if (deathTimer) {
+    clearInterval(deathTimer)
+    deathTimer = null
+  }
+}
+watch(() => run.status, (s) => {
+  clearDeathTimer()
+  if (s === 'runOver' || s === 'dungeonLost') {
+    deathCountdown.value = 5
+    deathTimer = setInterval(() => {
+      deathCountdown.value -= 1
+      if (deathCountdown.value <= 0) {
+        clearDeathTimer()
+        if (run.status === 'runOver')
+          store.startRun()
+        else if (run.status === 'dungeonLost')
+          store.exitToTower()
+      }
+    }, 1000)
+  }
+  else {
+    deathCountdown.value = 0
+  }
+})
+onUnmounted(clearDeathTimer)
 
 const enemies = computed(() => run.units.filter(u => u.side === 'enemy'))
 const allies = computed(() => run.units.filter(u => u.side !== 'enemy'))

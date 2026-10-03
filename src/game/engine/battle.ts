@@ -16,12 +16,14 @@ export function createEnemyUnit(level: number, sprite: MonsterSprite, boss: bool
   const s = enemyStats(level, boss)
   const lv = Math.max(1, level)
   // 高难度怪物能力：随等级增长，Boss 更强
+  // tier 从 0（1级）增长到 1（40级），前期 Boss 显著削弱
+  // （Boss 基础属性倍率在 enemyStats 中已按 tier 缩放）
   const tier = Math.min(1, lv / 40)
   const shieldMax = boss
-    ? Math.round(s.hp * (0.45 + tier * 0.35))
+    ? Math.round(s.hp * (0.2 + tier * 0.4))
     : Math.round(s.hp * (0.12 + tier * 0.25))
   const shieldRegen = boss
-    ? Math.round(s.hp * (0.05 + tier * 0.04))
+    ? Math.round(s.hp * (0.03 + tier * 0.04))
     : Math.round(s.hp * (0.02 + tier * 0.03))
   return makeUnit({
     name: boss ? sprite.name : sprite.name,
@@ -34,14 +36,14 @@ export function createEnemyUnit(level: number, sprite: MonsterSprite, boss: bool
     def: s.def,
     spd: s.spd,
     crit: 0.1 + tier * 0.15,
-    lifesteal: boss ? 0.2 + tier * 0.12 : tier * 0.07,
-    doubleHit: boss ? 0.3 + tier * 0.18 : tier * 0.13,
+    lifesteal: boss ? 0.1 + tier * 0.18 : tier * 0.07,
+    doubleHit: boss ? 0.15 + tier * 0.2 : tier * 0.13,
     regen: 0,
     boss,
     shield: shieldMax,
     shieldRegen,
-    pctDmgChance: boss ? 0.5 + tier * 0.3 : 0.12 + tier * 0.28,
-    pctDmgPower: boss ? 0.12 + tier * 0.08 : 0.06 + tier * 0.07,
+    pctDmgChance: boss ? 0.2 + tier * 0.45 : 0.12 + tier * 0.28,
+    pctDmgPower: boss ? 0.05 + tier * 0.1 : 0.06 + tier * 0.07,
     healReduceTurns: boss ? 3 : 2,
   })
 }
