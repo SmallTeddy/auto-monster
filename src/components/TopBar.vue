@@ -15,7 +15,7 @@
       <!-- 等级 -->
       <div class="game-chip flex shrink-0 items-center gap-1.5 px-1.5 py-1 sm:px-2" title="Lv">
         <span class="i-mdi-shield-account-outline text-primary" />
-        <span class="text-11px font-semibold sm:text-12px">{{ t('common.level') }}{{ pf.level }}</span>
+        <span class="text-11px font-semibold sm:text-12px">{{ pf.level }}</span>
         <div class="hidden h-1.5 w-14 overflow-hidden rounded-full bg-black/50 sm:block">
           <div class="h-full bg-primary" :style="{ width: `${expPct}%` }" />
         </div>
@@ -23,7 +23,7 @@
       <!-- 层数 -->
       <div v-if="run.started" class="game-chip flex shrink-0 items-center gap-1 px-1.5 py-1 sm:px-2">
         <span class="i-mdi-tower-fire text-orange-400" />
-        <span class="text-11px sm:text-12px">{{ run.mode === 'dungeon' ? dungeonName : `${t('common.floor')}${run.floor}` }}</span>
+        <span class="text-11px sm:text-12px">{{ run.mode === 'dungeon' ? dungeonName : run.floor }}</span>
       </div>
       <!-- 金币 -->
       <div class="game-chip flex shrink-0 items-center gap-1 px-1.5 py-1 sm:px-2">
