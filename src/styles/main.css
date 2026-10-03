@@ -3,6 +3,9 @@ body,
 #app {
   height: 100dvh;
   margin: 0;
+  /* 禁止移动端双击放大 */
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
 }
 
 :root {

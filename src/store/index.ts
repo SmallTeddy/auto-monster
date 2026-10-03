@@ -721,14 +721,21 @@ export const useGlobalState = createGlobalState(() => {
   }
 
   // ---------------- 商店 ----------------
-  const SHOP_REFRESH_COST = 1000
+  // 商店刷新费用：初始 100，每刷新一次递增 50，上限 1000
+  const SHOP_REFRESH_MIN = 100
+  const SHOP_REFRESH_MAX = 1000
+  const SHOP_REFRESH_STEP = 50
+  function shopRefreshCost(): number {
+    return Math.min(SHOP_REFRESH_MAX, SHOP_REFRESH_MIN + p().shop.refreshCount * SHOP_REFRESH_STEP)
+  }
   function refreshShop() {
     const pf = p()
-    if (pf.gold < SHOP_REFRESH_COST) {
+    const cost = shopRefreshCost()
+    if (pf.gold < cost) {
       toast(i18n.global.t('bag.goldLack'), 'error')
       return
     }
-    pf.gold -= SHOP_REFRESH_COST
+    pf.gold -= cost
     pf.shop.refreshCount += 1
     pf.shop.stock = genShopStock(pf.level)
     pf.shop.sold = pf.shop.stock.map(() => false)
@@ -742,12 +749,13 @@ export const useGlobalState = createGlobalState(() => {
     let tries = 0
     const maxTries = 200
     while (tries < maxTries) {
-      if (pf.gold < SHOP_REFRESH_COST) {
+      const cost = shopRefreshCost()
+      if (pf.gold < cost) {
         toast('金币不足，停止刷新', 'error')
         return { ok: false, spent, tries }
       }
-      pf.gold -= SHOP_REFRESH_COST
-      spent += SHOP_REFRESH_COST
+      pf.gold -= cost
+      spent += cost
       pf.shop.refreshCount += 1
       pf.shop.stock = genShopStock(pf.level)
       pf.shop.sold = pf.shop.stock.map(() => false)
@@ -1225,7 +1233,7 @@ export const useGlobalState = createGlobalState(() => {
     syncStamina, buyStamina, STAMINA_BUY_COST, STAMINA_BUY_AMOUNT, gainExp, addItem, addPet,
     sortBag, sellItem, recycleItem, sellAllEquips, recycleAllEquips, buyBagSlot, bagSlotCost, BAG_MAX_CAP,
     equipItem, unequipItem, enhanceItem, upgradeItem, MAX_ENHANCE,
-    refreshShop, refreshShopToGoldOrRed, SHOP_REFRESH_COST, buyShop,
+    refreshShop, refreshShopToGoldOrRed, shopRefreshCost, buyShop,
     deployPet, withdrawPet, trainPet, petSellPrice, sellPet, recyclePet, petUpgradeCost, upgradePetRarity,
     dungeonDef, enterDungeon, sweepDungeon, nextDungeonWave, abandonDungeon, exitToTower,
     startRun, continueRun, nextTowerFloor, chooseBoon, battleTick,

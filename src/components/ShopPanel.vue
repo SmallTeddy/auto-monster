@@ -10,7 +10,7 @@
           aria-label="刷新商店"
           @click="store.refreshShop()"
         >
-          <span class="i-mdi-refresh mr-1" />{{ t('shop.refreshCost', { cost: store.SHOP_REFRESH_COST }) }}
+          <span class="i-mdi-refresh mr-1" />{{ t('shop.refreshCost', { cost: store.shopRefreshCost() }) }}
         </button>
         <button
           class="game-btn-ghost"
