@@ -31,9 +31,9 @@
         <span class="text-11px font-semibold text-yellow-200 sm:text-12px">{{ pf.gold }}</span>
       </div>
       <!-- 结晶 -->
-      <div class="game-chip hidden shrink-0 items-center gap-1 px-2 py-1 md:flex">
+      <div class="game-chip flex shrink-0 items-center gap-1 px-1.5 py-1 sm:px-2">
         <span class="i-mdi-diamond-outline text-cyan-300" />
-        <span class="text-12px font-semibold text-cyan-100">{{ pf.soul }}</span>
+        <span class="text-11px font-semibold text-cyan-100 sm:text-12px">{{ pf.soul }}</span>
       </div>
       <!-- 强化石 -->
       <div class="game-chip hidden shrink-0 items-center gap-1 px-2 py-1 md:flex">
